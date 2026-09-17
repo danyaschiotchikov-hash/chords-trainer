@@ -128,7 +128,7 @@
         </div>
 
         <div id="statusBar" class="w-full py-2 px-3 rounded-xl text-xs font-semibold text-center glass-panel text-indigo-300 shrink-0 shadow-inner flex flex-col items-center justify-center transition-colors min-h-[36px]">
-            🎵 Нажмите «Новый» для старта
+            🎵 Нажмите «Новый» (На iPhone отключите беззвучный режим!)
         </div>
 
         <div id="answersWrapper" class="flex-grow glass-panel rounded-xl p-2 overflow-y-auto flex flex-col gap-2 min-h-0 custom-scrollbar">
@@ -351,6 +351,26 @@
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
             return audioCtx;
+        }
+
+        function unlockAudio() {
+            const ctx = getAudioContext();
+            if (ctx.state === 'suspended') ctx.resume();
+            
+            // Создаем короткий звук нулевой громкости (тишину)
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            gain.gain.value = 0; 
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            if (osc.start) osc.start(ctx.currentTime);
+            if (osc.stop) osc.stop(ctx.currentTime + 0.01);
+            
+            // Как только звук разблокирован, удаляем обработчики, чтобы не перегружать память
+            ['touchstart', 'touchend', 'click'].forEach(evt => {
+                document.body.removeEventListener(evt, unlockAudio);
+            });
         }
 
         function stopAudio() {
@@ -1015,6 +1035,10 @@
             if(DOM.playback) DOM.playback.onchange = saveData;
             if(DOM.timbre) DOM.timbre.onchange = saveData;
             if(DOM.root) DOM.root.onchange = saveData;
+
+            ['touchstart', 'touchend', 'click'].forEach(evt => {
+                document.body.addEventListener(evt, unlockAudio, { once: true });
+            });
         }
 
         window.onload = init;
