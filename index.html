@@ -1,1142 +1,1023 @@
 <!DOCTYPE html>
-<html lang="ru" class="h-[100dvh]">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="color-scheme" content="dark">
-    <meta name="theme-color" content="#090d16">
     <title>Тренажер аккордов на слух</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #090d16;
+            background-color: #080c17;
             color: #f1f5f9;
             overscroll-behavior: none;
             -webkit-tap-highlight-color: transparent;
             -webkit-user-select: none;
             user-select: none;
         }
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(99, 102, 241, 0.5);
-            border-radius: 9999px;
-        }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.4); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.8); }
+
         .custom-cb {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            width: 14px;
-            height: 14px;
-            border: 1px solid #475569;
-            border-radius: 4px;
-            background-color: #1e293b;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            outline: none;
+            appearance: none; -webkit-appearance: none; width: 14px; height: 14px;
+            border: 1px solid #475569; border-radius: 4px; background-color: #1e293b;
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s ease; outline: none; flex-shrink: 0;
         }
-        .custom-cb:checked {
-            background-color: #6366f1;
-            border-color: #6366f1;
-        }
-        .custom-cb:checked::after {
-            content: "✓";
-            font-size: 10px;
-            color: white;
-            font-weight: bold;
-            line-height: 1;
-        }
+        .custom-cb:checked { background-color: #6366f1; border-color: #6366f1; }
+        .custom-cb:checked::after { content: "✓"; font-size: 10px; color: white; font-weight: bold; line-height: 1; }
+        
         select {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
+            appearance: none; -webkit-appearance: none;
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 6px center;
-            background-size: 10px;
+            background-repeat: no-repeat; background-position: right 6px center; background-size: 10px;
             padding-right: 20px !important;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+        
+        .ans-btn {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            transition: all 0.15s ease-out;
+        }
+        .ans-btn:active { transform: scale(0.96); }
+        .ans-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        
+        .ans-btn.correct { 
+            background: rgba(16, 185, 129, 0.25) !important; 
+            border-color: #10b981 !important; 
+            color: #34d399 !important; 
+            box-shadow: inset 0 0 12px rgba(16,185,129,0.2); 
+        }
+        .ans-btn.wrong { 
+            background: rgba(225, 29, 72, 0.25) !important; 
+            border-color: #e11d48 !important; 
+            color: #fb7185 !important; 
         }
     </style>
 </head>
-<body class="h-[100dvh] flex flex-col justify-between p-2 sm:p-3 max-w-4xl mx-auto overflow-hidden bg-slate-950 text-slate-100">
+<body class="h-[100dvh] w-full flex flex-col p-1.5 sm:p-2 max-w-4xl mx-auto overflow-hidden text-xs">
 
-    <header class="w-full bg-slate-900/90 border border-slate-800 rounded-2xl py-1.5 px-2.5 shadow-md shrink-0 flex flex-wrap justify-between items-center gap-1.5">
-        <div class="flex items-center gap-1 flex-wrap">
-            <select id="tempoSelect" class="bg-slate-950 border border-slate-700/80 rounded-lg px-2 py-1 text-[11px] text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium">
-                <option value="very_slow">Очень медл. (0.6с)</option>
-                <option value="slow">Медленный (0.4с)</option>
-                <option value="normal" selected>Умеренный (0.25с)</option>
-                <option value="fast">Быстрый (0.15с)</option>
-            </select>
-            <select id="playbackStyleSelect" class="bg-slate-950 border border-slate-700/80 rounded-lg px-2 py-1 text-[11px] text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium">
-                <option value="arpeggio" selected>Арпеджио</option>
-                <option value="harmonic">Гармонически</option>
-            </select>
-            <select id="rootSelect" class="bg-slate-950 border border-slate-700/80 rounded-lg px-2 py-1 text-[11px] text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium">
-                <option value="random">Любой тон</option>
-                <option value="C">До (C)</option>
-                <option value="D">Ре (D)</option>
-                <option value="E">Ми (E)</option>
-                <option value="F">Фа (F)</option>
-                <option value="G">Соль (G)</option>
-                <option value="A">Ля (A)</option>
-                <option value="B">Си (B)</option>
-            </select>
-        </div>
-
-        <div class="flex items-center gap-1.5 text-xs">
-            <div id="quickTogglesContainer" class="flex items-center gap-1 flex-wrap">
-                <!-- Filled dynamically with ascetic pill toggles -->
+    <header class="glass-panel rounded-xl py-2 px-2.5 flex flex-col gap-2 z-10 shrink-0 shadow-md">
+        <div class="flex flex-wrap justify-between items-center gap-2 w-full">
+            <div class="flex items-center gap-2 flex-wrap">
+                <label class="flex items-center gap-1.5 cursor-pointer hover:bg-slate-700/50 px-2 py-1 rounded-lg transition-colors border border-indigo-500/30 bg-indigo-950/20 shadow-sm" title="Самоконтроль без выбора кнопок">
+                    <input type="checkbox" id="verbalModeCb" class="custom-cb border-indigo-400/50">
+                    <span class="text-[11px] font-bold text-indigo-300">Устный режим</span>
+                </label>
+                <div class="h-3 w-px bg-slate-600"></div>
+                <select id="tempoSelect" class="bg-slate-900 border border-slate-700 rounded-md px-1.5 py-1 text-[11px] font-medium text-slate-200 focus:outline-none focus:border-indigo-500 shadow-sm">
+                    <option value="very_slow">Очень медл.</option>
+                    <option value="slow">Медленно</option>
+                    <option value="normal" selected>Умеренно</option>
+                    <option value="fast">Быстро</option>
+                </select>
+                <select id="playbackStyleSelect" class="bg-slate-900 border border-slate-700 rounded-md px-1.5 py-1 text-[11px] font-medium text-slate-200 focus:outline-none focus:border-indigo-500 shadow-sm">
+                    <option value="arpeggio" selected>Арпеджио</option>
+                    <option value="harmonic">Гармонически</option>
+                </select>
+                <select id="timbreSelect" class="bg-slate-900 border border-slate-700 rounded-md px-1.5 py-1 text-[11px] font-medium text-slate-200 focus:outline-none focus:border-indigo-500 shadow-sm">
+                    <option value="piano" selected>Пианино</option>
+                    <option value="epiano">Электропиано</option>
+                    <option value="organ">Орган</option>
+                    <option value="strings">Струнные</option>
+                    <option value="basic">Синтезатор</option>
+                </select>
+                <select id="rootSelect" class="bg-slate-900 border border-slate-700 rounded-md px-1.5 py-1 text-[11px] font-medium text-slate-200 focus:outline-none focus:border-indigo-500 shadow-sm">
+                    <option value="random">Любой тон</option>
+                    <option value="C">C</option><option value="D">D</option><option value="E">E</option>
+                    <option value="F">F</option><option value="G">G</option><option value="A">A</option><option value="B">B</option>
+                </select>
             </div>
-            <div class="flex items-center gap-1 border-l border-slate-800 pl-1.5">
-                <button id="toggleSettingsBtn" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-indigo-300 font-medium rounded-lg text-xs border border-slate-700 flex items-center gap-1 transition" title="Настройки">
-                    ⚙️ <span id="activeCountBadge" class="bg-indigo-950 px-1 py-0.5 rounded text-[10px] font-bold text-indigo-200">5</span>
+
+            <div class="flex items-center gap-1.5">
+                <button id="btnSettings" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-indigo-300 rounded-lg text-[11px] font-bold border border-slate-600 transition-colors flex items-center gap-1.5 shadow-sm">
+                    ⚙️ Настройки <span id="activeCount" class="bg-indigo-600 text-white px-1.5 py-0.5 rounded-md text-[10px] shadow-inner">0</span>
                 </button>
-                <button id="toggleDetailedStats" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-300 font-medium rounded-lg text-xs border border-slate-700 flex items-center gap-1 transition" title="Статистика">
+                <button id="btnStats" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded-lg text-[11px] font-bold border border-slate-600 transition-colors shadow-sm" title="Статистика">
                     📊
                 </button>
             </div>
         </div>
+
+        <div id="quickCategoryToggles" class="flex flex-wrap items-center justify-start gap-x-3 gap-y-1.5 pt-1 border-t border-slate-700/50 w-full">
+            <!-- Populated by JS -->
+        </div>
     </header>
 
-    <main class="flex-grow flex flex-col justify-between overflow-hidden my-1.5 gap-1.5">
-        <div class="w-full bg-slate-900/80 border border-slate-800/90 rounded-2xl shadow-xl p-2.5 sm:p-3.5 flex flex-col justify-between h-full gap-2 overflow-hidden backdrop-blur-sm">
-            
-            <!-- Settings Modal -->
-            <div id="chordSettingsModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-2 hidden">
-                <div class="bg-slate-900 border border-slate-700 rounded-2xl p-3 max-w-xl w-full space-y-2 shadow-2xl flex flex-col max-h-[92vh]">
-                    <div class="flex justify-between items-center border-b border-slate-800 pb-1.5 shrink-0">
-                        <h3 class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Настройка категорий</h3>
-                        <div class="flex gap-2 text-xs">
-                            <button id="selectAllBtn" class="text-indigo-400 hover:underline font-medium">Все</button>
-                            <span class="text-slate-600">|</span>
-                            <button id="deselectAllBtn" class="text-slate-400 hover:underline font-medium">Сбросить</button>
-                        </div>
-                    </div>
-                    <div id="chordTypesContainer" class="grid grid-cols-1 gap-2 text-xs overflow-y-auto pr-1 flex-grow">
-                        <!-- Filled dynamically -->
-                    </div>
-                    <div class="flex justify-end pt-1.5 border-t border-slate-800 shrink-0">
-                        <button id="closeSettingsBtn" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-md transition">Готово</button>
-                    </div>
-                </div>
-            </div>
+    <main class="flex-grow flex flex-col mt-1.5 gap-1.5 relative min-h-0">
+        
+        <div id="actionControls" class="flex gap-2 shrink-0">
+            <button id="btnNew" class="flex-1 py-2.5 bg-gradient-to-b from-indigo-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 text-white font-bold rounded-xl text-[13px] shadow-md border border-indigo-400/50 active:scale-[0.98] transition-all flex justify-center items-center gap-1.5">
+                ▶️ Новый
+            </button>
+            <button id="btnRepeat" class="flex-1 py-2.5 bg-slate-800/80 hover:bg-slate-700 text-indigo-200 font-bold rounded-xl text-[13px] shadow-sm border border-slate-600/80 active:scale-[0.98] transition-all flex justify-center items-center gap-1.5">
+                🔁 Повтор
+            </button>
+        </div>
 
-            <!-- Statistics Modal -->
-            <div id="detailedStatsBox" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 hidden">
-                <div class="bg-slate-900 border border-slate-700 rounded-2xl p-4 max-w-lg w-full space-y-3 shadow-2xl flex flex-col max-h-[90vh]">
-                    <div class="flex justify-between items-center border-b border-slate-800 pb-2 shrink-0">
-                        <div class="flex items-center gap-3 text-xs">
-                            <span class="font-bold text-indigo-400 uppercase">Статистика</span>
-                            <span class="text-slate-400">Верно: <strong id="modalCorrectCount" class="text-emerald-400">0</strong></span>
-                            <span class="text-slate-400">Всего: <strong id="modalTotalCount" class="text-slate-200">0</strong></span>
-                            <span class="text-slate-400">Точность: <strong id="modalAccuracyCount" class="text-indigo-300">0%</strong></span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button id="resetStatsBtn" class="text-rose-400 hover:text-rose-300 text-xs underline">Сбросить</button>
-                            <button id="closeStatsModalBtn" class="text-slate-400 hover:text-white text-xs font-bold px-2 py-1">✕</button>
-                        </div>
-                    </div>
-                    <div id="detailedStatsList" class="space-y-3 text-xs overflow-y-auto pr-1 flex-grow">
-                        <!-- Filled via JS -->
-                    </div>
-                </div>
-            </div>
+        <div id="statusBar" class="w-full py-2 px-3 rounded-xl text-xs font-semibold text-center glass-panel text-indigo-300 shrink-0 shadow-inner flex flex-col items-center justify-center transition-colors min-h-[36px]">
+            🎵 Нажмите «Новый» для старта
+        </div>
 
-            <div class="flex items-center gap-3 shrink-0">
-                <button id="playBtn" class="flex-1 py-2 px-6 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-semibold rounded-xl shadow transition text-xs flex items-center justify-center gap-2">
-                    ▶️ Новый
+        <div id="answersWrapper" class="flex-grow glass-panel rounded-xl p-2 overflow-y-auto flex flex-col gap-2 min-h-0 custom-scrollbar">
+            <!-- Populated by JS -->
+        </div>
+
+        <div id="verbalWrapper" class="flex-grow glass-panel rounded-xl p-4 hidden flex-col items-center justify-center gap-5 min-h-0">
+            <div id="verbalDisplay" class="w-full max-w-md h-24 bg-slate-900 border border-slate-700 rounded-2xl flex flex-col items-center justify-center shadow-inner text-slate-500 font-bold text-lg px-4 text-center transition-all">
+                ???
+            </div>
+            <button id="btnShowAnswer" class="px-6 py-3 glass-panel hover:bg-slate-700 text-indigo-300 font-bold rounded-xl border border-slate-500 active:scale-95 transition-all shadow-md text-sm">
+                👀 Показать ответ
+            </button>
+            <div class="flex gap-3 w-full max-w-md mt-2">
+                <button id="btnVerbalRepeat" class="flex-1 py-3.5 glass-panel hover:bg-slate-700 text-indigo-200 font-bold rounded-xl text-sm shadow-sm active:scale-[0.98] transition-all flex flex-col items-center gap-1">
+                    <span class="text-xl">🔁</span> Повтор
                 </button>
-                <button id="repeatBtn" class="flex-1 py-2 px-6 bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-indigo-300 font-semibold rounded-xl shadow transition text-xs flex items-center justify-center gap-2 border border-slate-700">
-                    🔁 Повтор
+                <button id="btnVerbalNew" class="flex-1 py-3.5 bg-gradient-to-b from-indigo-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 text-white font-bold rounded-xl text-sm shadow-md border border-indigo-400/50 active:scale-[0.98] transition-all flex flex-col items-center gap-1">
+                    <span class="text-xl">▶️</span> Новый
                 </button>
             </div>
-
-            <div class="space-y-1.5 flex-grow flex flex-col justify-start overflow-hidden min-h-0">
-                <div id="statusFeedbackBar" class="w-full py-2 px-4 rounded-xl text-xs font-semibold text-center bg-slate-900/95 border border-slate-800 text-indigo-300 shrink-0 transition-all shadow-md">
-                    🎵 Прослушайте звук и выберите ответ
-                </div>
-                <div id="answersContainer" class="space-y-2 overflow-y-auto pr-1 flex-grow">
-                    <!-- Dynamic answer buttons -->
-                </div>
-            </div>
-
         </div>
     </main>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <div id="settingsModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex-col items-center justify-center p-2">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl max-h-[96vh] flex flex-col shadow-2xl">
+            <div class="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-800/40 rounded-t-2xl shrink-0">
+                <h2 class="text-xs font-extrabold text-indigo-300 uppercase tracking-widest">Настройка элементов</h2>
+                <button id="btnCloseSettings" class="text-slate-300 hover:text-white px-4 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-[11px] font-bold border border-slate-500 transition-colors shadow-sm">Готово</button>
+            </div>
+            <div id="settingsContent" class="p-2 overflow-y-auto flex-grow space-y-2 custom-scrollbar">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
 
-        const CHORD_CATEGORIES = {
-            'Интервалы': {
-                shortName: 'Интерв.',
-                subgroups: [
-                    {
-                        title: 'Простые интервалы',
-                        chords: {
-                            'int_m2': { name: 'Малая секунда', rawShort: 'м.2', intervals: [0, 1], type: 'interval' },
-                            'int_M2': { name: 'Большая секунда', rawShort: 'б.2', intervals: [0, 2], type: 'interval' },
-                            'int_m3': { name: 'Малая терция', rawShort: 'м.3', intervals: [0, 3], type: 'interval' },
-                            'int_M3': { name: 'Большая терция', rawShort: 'б.3', intervals: [0, 4], type: 'interval' },
-                            'int_P4': { name: 'Чистая кварта', rawShort: 'ч.4', intervals: [0, 5], type: 'interval' },
-                            'int_P5': { name: 'Чистая квинта', rawShort: 'ч.5', intervals: [0, 7], type: 'interval' },
-                            'int_m6': { name: 'Малая секста', rawShort: 'м.6', intervals: [0, 8], type: 'interval' },
-                            'int_M6': { name: 'Большая секста', rawShort: 'б.6', intervals: [0, 9], type: 'interval' },
-                            'int_m7': { name: 'Малая септима', rawShort: 'м.7', intervals: [0, 10], type: 'interval' },
-                            'int_M7': { name: 'Большая септима', rawShort: 'б.7', intervals: [0, 11], type: 'interval' }
-                        }
-                    }
-                ]
-            },
-            'Характерные интервалы': {
-                shortName: 'Хар.инт.',
-                subgroups: [
-                    {
-                        title: 'Характерные интервалы',
-                        chords: {
-                            'int_aug4_min': { name: 'Увеличенная кварта (в миноре)', rawShort: 'Ув.4 (мин)', intervals: [0, 6], resolution: [-1, 7], resolutionText: 'разрешение в большую сексту (б.6) в натуральном миноре', type: 'characteristic_interval' },
-                            'int_aug4_maj': { name: 'Увеличенная кварта (в мажоре)', rawShort: 'Ув.4 (маж)', intervals: [0, 6], resolution: [1, 8], resolutionText: 'разрешение в большую сексту (б.6) в натуральном мажоре', type: 'characteristic_interval' },
-                            'int_dim5_min': { name: 'Уменьшенная квинта (в миноре)', rawShort: 'Ум.5 (мин)', intervals: [0, 6], resolution: [1, 5], resolutionText: 'разрешение в малую терцию (м.3) в натуральном миноре', type: 'characteristic_interval' },
-                            'int_dim5_maj': { name: 'Уменьшенная квинта (в мажоре)', rawShort: 'Ум.5 (маж)', intervals: [0, 6], resolution: [-1, 4], resolutionText: 'разрешение в малую терцию (м.3) в натуральном мажоре', type: 'characteristic_interval' },
-                            'int_aug2': { name: 'Увеличенная секунда', rawShort: 'Ув.2', intervals: [0, 3], resolution: [-1, 5], resolutionText: 'разрешение в чистую кварту (ч.4) в гармоническом миноре', type: 'characteristic_interval' },
-                            'int_dim7': { name: 'Уменьшенная септима', rawShort: 'Ум.7', intervals: [0, 9], resolution: [1, 7], resolutionText: 'разрешение в чистую квинту (ч.5) в гармоническом мажоре/миноре', type: 'characteristic_interval' },
-                            'int_aug5_min': { name: 'Увеличенная квинта (в миноре)', rawShort: 'Ув.5 (мин)', intervals: [0, 8], resolution: [-1, 9], resolutionText: 'разрешение в большую сексту (б.6) в гармоническом миноре', type: 'characteristic_interval' },
-                            'int_aug5_maj': { name: 'Увеличенная квинта (в мажоре)', rawShort: 'Ув.5 (маж)', intervals: [0, 8], resolution: [1, 8], resolutionText: 'разрешение в большую сексту (б.6) в гармоническом мажоре', type: 'characteristic_interval' },
-                            'int_dim4_min': { name: 'Уменьшенная кварта (в миноре)', rawShort: 'Ум.4 (мин)', intervals: [0, 4], resolution: [1, 5], resolutionText: 'разрешение в малую терцию (м.3) в гармоническом миноре', type: 'characteristic_interval' },
-                            'int_dim4_maj': { name: 'Уменьшенная кварта (в мажоре)', rawShort: 'Ум.4 (маж)', intervals: [0, 4], resolution: [-1, 4], resolutionText: 'разрешение в малую терцию (м.3) в гармоническом мажоре', type: 'characteristic_interval' }
-                        }
-                    }
-                ]
-            },
-            'Трезвучия': {
-                shortName: 'Трезв.',
-                subgroups: [
-                    {
-                        title: 'Основные трезвучия',
-                        chords: {
-                            'triad_maj': { name: 'Мажорное трезвучие', rawShort: 'Б5', intervals: [0, 4, 7], type: 'chord' },
-                            'triad_min': { name: 'Минорное трезвучие', rawShort: 'М5', intervals: [0, 3, 7], type: 'chord' },
-                            'triad_dim': { name: 'Уменьшенное трезвучие', rawShort: 'Ум5', intervals: [0, 3, 6], type: 'chord' },
-                            'triad_aug': { name: 'Увеличенный аккорд', rawShort: 'Ув5', intervals: [0, 4, 8], type: 'chord' }
-                        }
-                    },
-                    {
-                        title: 'Обращения трезвучий',
-                        chords: {
-                            'inv_maj_6': { name: 'Мажорный секстаккорд', rawShort: 'Б6', intervals: [0, 3, 8], type: 'chord' },
-                            'inv_maj_64': { name: 'Мажорный квартсекстаккорд', rawShort: 'Б6/4', intervals: [0, 5, 9], type: 'chord' },
-                            'inv_min_6': { name: 'Минорный секстаккорд', rawShort: 'М6', intervals: [0, 4, 9], type: 'chord' },
-                            'inv_min_64': { name: 'Минорный квартсекстаккорд', rawShort: 'М6/4', intervals: [0, 5, 8], type: 'chord' }
-                        }
-                    }
-                ]
-            },
-            'Септаккорды': {
-                shortName: 'Септ.',
-                subgroups: [
-                    {
-                        title: 'Основные септаккорды',
-                        chords: {
-                            'mb7': { name: 'Малый мажорный септаккорд', rawShort: 'МБ7', intervals: [0, 4, 7, 10], type: 'chord' },
-                            'bb7': { name: 'Большой мажорный септаккорд', rawShort: 'ББ7', intervals: [0, 4, 7, 11], type: 'chord' },
-                            'mm7': { name: 'Малый минорный септаккорд', rawShort: 'ММ7', intervals: [0, 3, 7, 10], type: 'chord' },
-                            'bm7': { name: 'Большой минорный септаккорд', rawShort: 'БМ7', intervals: [0, 3, 7, 11], type: 'chord' },
-                            'm7b5': { name: 'Полууменьшенный септаккорд', rawShort: 'Мø7', intervals: [0, 3, 6, 10], type: 'chord' },
-                            'dim7': { name: 'Уменьшенный септаккорд', rawShort: 'УМ7', intervals: [0, 3, 6, 9], type: 'chord' },
-                            'aug7': { name: 'Увеличенный септаккорд', rawShort: 'УВ7', intervals: [0, 4, 8, 11], type: 'chord' }
-                        }
-                    },
-                    {
-                        title: 'Обращения доминантсептаккорда',
-                        chords: {
-                            'dom7': { name: 'Доминантсептаккорд', rawShort: 'D7', intervals: [0, 4, 7, 10], type: 'chord' },
-                            'dom65': { name: 'Квинтсекстаккорд', rawShort: 'D6/5', intervals: [0, 3, 6, 8], type: 'chord' },
-                            'dom43': { name: 'Терцквартаккорд', rawShort: 'D4/3', intervals: [0, 3, 5, 9], type: 'chord' },
-                            'dom2': { name: 'Секундаккорд', rawShort: 'D2', intervals: [0, 2, 6, 9], type: 'chord' }
-                        }
-                    }
-                ]
-            },
-            'Лады и гаммы': {
-                shortName: 'Лады',
-                subgroups: [
-                    {
-                        title: 'Основные лады',
-                        isMajorMinorRows: true,
-                        rows: [
-                            {
-                                maj: { name: 'Натуральный мажор', rawShort: 'Натур. мажор', hint: '', intervals: [0, 2, 4, 5, 7, 9, 11, 12], type: 'scale' },
-                                min: { name: 'Натуральный минор', rawShort: 'Натур. минор', hint: '', intervals: [0, 2, 3, 5, 7, 8, 10, 12], type: 'scale' }
-                            },
-                            {
-                                maj: { name: 'Гармонический мажор', rawShort: 'Гарм. мажор', hint: 'b6', intervals: [0, 2, 4, 5, 7, 8, 11, 12], type: 'scale' },
-                                min: { name: 'Гармонический минор', rawShort: 'Гарм. минор', hint: '#7', intervals: [0, 2, 3, 5, 7, 8, 11, 12], type: 'scale' }
-                            },
-                            {
-                                maj: { name: 'Мелодический мажор', rawShort: 'Мелод. мажор', hint: 'b6,b7', intervals: [0, 2, 4, 5, 7, 8, 10, 12], type: 'scale' },
-                                min: { name: 'Мелодический минор', rawShort: 'Мелод. минор', hint: '#6,#7', intervals: [0, 2, 3, 5, 7, 9, 11, 12], type: 'scale' }
-                            }
-                        ]
-                    },
-                    {
-                        title: 'Лады народной музыки',
-                        chords: {
-                            'mode_lydian': { name: 'Лидийский лад', rawShort: 'Лидийский', hint: '#4', intervals: [0, 2, 4, 6, 7, 9, 11], type: 'scale' },
-                            'mode_mixolydian': { name: 'Миксолидийский лад', rawShort: 'Миксолидийский', hint: 'b7', intervals: [0, 2, 4, 5, 7, 9, 10], type: 'scale' },
-                            'mode_dorian': { name: 'Дорийский лад', rawShort: 'Дорийский', hint: '#6', intervals: [0, 2, 3, 5, 7, 9, 10], type: 'scale' },
-                            'mode_phrygian': { name: 'Фригийский лад', rawShort: 'Фригийский', hint: 'b2', intervals: [0, 1, 3, 5, 7, 8, 10], type: 'scale' },
-                            'mode_locrian': { name: 'Локрийский лад', rawShort: 'Локрийский', hint: 'b2,b5', intervals: [0, 1, 3, 5, 6, 8, 10], type: 'scale' }
-                        }
-                    },
-                    {
-                        title: 'Другое',
-                        chords: {
-                            'pent_maj': { name: 'Мажорная пентатоника', rawShort: 'Маж. пентатоника', hint: '5 ст.', intervals: [0, 2, 4, 7, 9, 12], type: 'scale' },
-                            'pent_min': { name: 'Минорная пентатоника', rawShort: 'Мин. пентатоника', hint: '5 ст.', intervals: [0, 3, 5, 7, 10, 12], type: 'scale' },
-                            'double_harm_maj': { name: 'Дважды гармонический мажор', rawShort: 'Дв. гарм. мажор', hint: 'b2,b6', intervals: [0, 1, 4, 5, 7, 8, 11, 12], type: 'scale' },
-                            'double_harm_min': { name: 'Дважды гармонический минор', rawShort: 'Дв. гарм. минор', hint: '#4,#7', intervals: [0, 2, 3, 6, 7, 8, 11, 12], type: 'scale' }
-                        }
-                    }
-                ]
-            }
+    <div id="statsModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex-col items-center justify-center p-2">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl">
+            <div class="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-800/40 rounded-t-2xl shrink-0">
+                <h2 class="text-xs font-extrabold text-emerald-400 uppercase tracking-widest">Статистика</h2>
+                <div class="flex gap-2">
+                    <button id="btnResetStats" class="text-rose-400 hover:text-rose-300 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-[11px] font-bold border border-slate-600 transition-colors shadow-sm">Сброс</button>
+                    <button id="btnCloseStats" class="text-slate-300 hover:text-white px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-[11px] font-bold border border-slate-500 transition-colors shadow-sm">Закрыть</button>
+                </div>
+            </div>
+            <div class="p-3 overflow-y-auto flex-grow custom-scrollbar">
+                <div id="overallAccuracy" class="text-center text-sm font-bold text-white mb-3 bg-slate-800 py-2.5 rounded-xl border border-slate-700 shadow-inner">
+                    Точность: 0%
+                </div>
+                <div id="detailedStats" class="space-y-0.5"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ALL_ITEMS = {
+            // Простые интервалы
+            'm2': { cat: 'simple', name: 'Малая секунда', short: 'м.2', int: [0, 1] },
+            'M2': { cat: 'simple', name: 'Большая секунда', short: 'б.2', int: [0, 2] },
+            'm3': { cat: 'simple', name: 'Малая терция', short: 'м.3', int: [0, 3] },
+            'M3': { cat: 'simple', name: 'Большая терция', short: 'б.3', int: [0, 4] },
+            'P4': { cat: 'simple', name: 'Чистая кварта', short: 'ч.4', int: [0, 5] },
+            'P5': { cat: 'simple', name: 'Чистая квинта', short: 'ч.5', int: [0, 7] },
+            'm6': { cat: 'simple', name: 'Малая секста', short: 'м.6', int: [0, 8] },
+            'M6': { cat: 'simple', name: 'Большая секста', short: 'б.6', int: [0, 9] },
+            'm7': { cat: 'simple', name: 'Малая септима', short: 'м.7', int: [0, 10] },
+            'M7': { cat: 'simple', name: 'Большая септима', short: 'б.7', int: [0, 11] },
+
+            // Характерные интервалы
+            'aug2':   { cat: 'char', name: 'Увеличенная секунда', short: 'ув.2', int: [0, 3], res: [-1, 4], resText: 'в ч.4 (гарм. минор)' },
+            'dim7':   { cat: 'char', name: 'Уменьшенная септима', short: 'ум.7', int: [0, 9], res: [1, 8], resText: 'в ч.5 (г.маж/г.мин)' },
+            
+            'dim4':   { cat: 'char', name: 'Уменьшенная кварта', short: 'ум.4', int: [0, 4], res: [1, 4], resText: 'в м.3 (гарм. минор)' },
+            'aug5':   { cat: 'char', name: 'Увеличенная квинта', short: 'ув.5', int: [0, 8], res: [-1, 8], resText: 'в б.6 (гарм. мажор)' },
+            
+            'aug4_n': { cat: 'char', name: 'Тритон (ув.4 нат.)', short: 'ув.4 (н)', int: [0, 6], res: [-1, 7], resText: 'в м.6 (нат. минор)' },
+            'dim5_n': { cat: 'char', name: 'Тритон (ум.5 нат.)', short: 'ум.5 (н)', int: [0, 6], res: [1, 5], resText: 'в б.3 (нат. мажор)' },
+            
+            'aug4_h': { cat: 'char', name: 'Тритон (ув.4 гарм.)', short: 'ув.4 (г)', int: [0, 6], res: [-2, 7], resText: 'в б.6 (гарм. минор)' },
+            'dim5_h': { cat: 'char', name: 'Тритон (ум.5 гарм.)', short: 'ум.5 (г)', int: [0, 6], res: [1, 4], resText: 'в м.3 (гарм. мажор)' },
+
+            // Трезвучия
+            'triad_maj':   { cat: 'triad', name: 'Мажорное (Б5/3)', short: 'Б5/3', int: [0, 4, 7] },
+            'triad_maj6':  { cat: 'triad', name: 'Мажорный секстаккорд', short: 'Б6', int: [0, 3, 8] },
+            'triad_maj64': { cat: 'triad', name: 'Маж. квартсекстаккорд', short: 'Б6/4', int: [0, 5, 9] },
+            'triad_min':   { cat: 'triad', name: 'Минорное (М5/3)', short: 'М5/3', int: [0, 3, 7] },
+            'triad_min6':  { cat: 'triad', name: 'Минорный секстаккорд', short: 'М6', int: [0, 4, 9] },
+            'triad_min64': { cat: 'triad', name: 'Мин. квартсекстаккорд', short: 'М6/4', int: [0, 5, 8] },
+            'triad_aug':   { cat: 'triad', name: 'Увеличенное', short: 'Ув5/3', int: [0, 4, 8] },
+            'triad_dim':   { cat: 'triad', name: 'Уменьшенное', short: 'Ум5/3', int: [0, 3, 6] },
+
+            // Септаккорды
+            '7_maj':  { cat: 'seventh', name: 'Большой мажорный', short: 'ББ7', int: [0, 4, 7, 11] },
+            '7_dom':  { cat: 'seventh', name: 'Доминантсептаккорд', short: 'БМ7', int: [0, 4, 7, 10], hint: 'D7' },
+            '7_min':  { cat: 'seventh', name: 'Малый минорный', short: 'ММ7', int: [0, 3, 7, 10] },
+            '7_m7b5': { cat: 'seventh', name: 'Полуменьшенный', short: 'МУм7', int: [0, 3, 6, 10] },
+            '7_dim':  { cat: 'seventh', name: 'Уменьшенный', short: 'УмУм7', int: [0, 3, 6, 9] },
+
+            // Обращения D7
+            'd7_65': { cat: 'd7inv', name: 'Квинтсекстаккорд', short: 'D6/5', int: [0, 3, 6, 8], hint: 'на VII' },
+            'd7_43': { cat: 'd7inv', name: 'Терцквартаккорд', short: 'D4/3', int: [0, 3, 5, 9], hint: 'на II' },
+            'd7_2':  { cat: 'd7inv', name: 'Секундаккорд', short: 'D2', int: [0, 2, 6, 9], hint: 'на IV' },
+
+            // Базовые Гаммы
+            'sc_maj':  { cat: 'scale_basic', name: 'Натуральный мажор', short: 'Нат. Мажор', int: [0,2,4,5,7,9,11,12] },
+            'sc_min':  { cat: 'scale_basic', name: 'Натуральный минор', short: 'Нат. Минор', int: [0,2,3,5,7,8,10,12] },
+            'sc_hmaj': { cat: 'scale_basic', name: 'Гармонический мажор', short: 'Гарм. Маж.', int: [0,2,4,5,7,8,11,12], hint: 'VI♭' },
+            'sc_hmin': { cat: 'scale_basic', name: 'Гармонический минор', short: 'Гарм. Мин.', int: [0,2,3,5,7,8,11,12], hint: 'VII♯' },
+            'sc_mmaj': { cat: 'scale_basic', name: 'Мелодический мажор', short: 'Мел. Маж.', int: [0,2,4,5,7,8,10,12], hint: 'VI♭, VII♭' },
+            'sc_mmin': { cat: 'scale_basic', name: 'Мелодический минор', short: 'Мел. Мин.', int: [0,2,3,5,7,9,11,12], hint: 'VI♯, VII♯' },
+            'sc_2hmaj':{ cat: 'scale_basic', name: 'Дважды гарм. мажор', short: 'Дв.гарм.Маж', int: [0,1,4,5,7,8,11,12], hint: 'II♭, VI♭' },
+            'sc_2hmin':{ cat: 'scale_basic', name: 'Дважды гарм. минор', short: 'Дв.гарм.Мин', int: [0,2,3,6,7,8,11,12], hint: 'IV♯, VII♯' },
+
+            // Народные лады и Пентатоника
+            'sc_dor':  { cat: 'scale_modes', name: 'Дорийский', short: 'Дорийский', int: [0,2,3,5,7,9,10,12], hint: 'VI♯' },
+            'sc_phr':  { cat: 'scale_modes', name: 'Фригийский', short: 'Фригийский', int: [0,1,3,5,7,8,10,12], hint: 'II♭' },
+            'sc_lyd':  { cat: 'scale_modes', name: 'Лидийский', short: 'Лидийский', int: [0,2,4,6,7,9,11,12], hint: 'IV♯' },
+            'sc_mix':  { cat: 'scale_modes', name: 'Миксолидийский', short: 'Миксол.', int: [0,2,4,5,7,9,10,12], hint: 'VII♭' },
+            'sc_loc':  { cat: 'scale_modes', name: 'Локрийский', short: 'Локрийский', int: [0,1,3,5,6,8,10,12], hint: 'II♭, V♭' },
+            'sc_pmaj': { cat: 'scale_modes', name: 'Пентатоника Мажор', short: 'Пент. Мажор', int: [0,2,4,7,9,12], hint: 'без IV, VII' },
+            'sc_pmin': { cat: 'scale_modes', name: 'Пентатоника Минор', short: 'Пент. Минор', int: [0,3,5,7,10,12], hint: 'без II, VI' }
         };
 
-        const ALL_CHORDS = {};
-        for (const cat in CHORD_CATEGORIES) {
-            CHORD_CATEGORIES[cat].subgroups.forEach(sub => {
-                if (sub.isMajorMinorRows) {
-                    const majKeys = ['scale_nat_maj', 'scale_harm_maj', 'scale_mel_maj'];
-                    const minKeys = ['scale_nat_min', 'scale_harm_min', 'scale_mel_min'];
-                    sub.rows.forEach((row, idx) => {
-                        ALL_CHORDS[majKeys[idx]] = row.maj;
-                        ALL_CHORDS[minKeys[idx]] = row.min;
-                    });
-                } else if (sub.chords) {
-                    for (const key in sub.chords) {
-                        ALL_CHORDS[key] = sub.chords[key];
-                    }
-                }
-            });
-        }
+        for (const k in ALL_ITEMS) { ALL_ITEMS[k].key = k; }
 
-        const NOTE_OFFSETS = {
-            'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3,
-            'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8,
-            'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11
+        const CATS = {
+            simple: Object.values(ALL_ITEMS).filter(i => i.cat === 'simple'),
+            char: Object.values(ALL_ITEMS).filter(i => i.cat === 'char'),
+            triad: Object.values(ALL_ITEMS).filter(i => i.cat === 'triad'),
+            seventh: Object.values(ALL_ITEMS).filter(i => i.cat === 'seventh'),
+            d7inv: Object.values(ALL_ITEMS).filter(i => i.cat === 'd7inv'),
+            scale_basic: Object.values(ALL_ITEMS).filter(i => i.cat === 'scale_basic'),
+            scale_modes: Object.values(ALL_ITEMS).filter(i => i.cat === 'scale_modes')
         };
+
+        const CATEGORIES_INFO = [
+            { id: 'simple', label: 'Простые' },
+            { id: 'char', label: 'Характерные' },
+            { id: 'triad', label: 'Трезвучия' },
+            { id: 'seventh', label: 'Септаккорды' },
+            { id: 'd7inv', label: 'Обр. D7' },
+            { id: 'scale_basic', label: 'Гаммы' },
+            { id: 'scale_modes', label: 'Лады' }
+        ];
 
         const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-        let audioCtx = null;
-        let currentChord = null;
-        let currentRoot = null;
-        let stats = { correct: 0, total: 0 };
-        let chordStats = {}; 
-        let canAnswer = false;
-        let activeNodes = []; 
-        let playbackTimer = null;
+        let activeKeys = ['M3', 'm3', 'P4', 'P5', 'triad_maj', 'triad_min', '7_dom']; 
+        let currentItemKey = null;
+        let currentBaseNote = 60;
+        let currentBaseName = 'C';
+        let isVerbalMode = false;
+        let stats = {}; 
 
-        for (const key in ALL_CHORDS) {
-            chordStats[key] = { correct: 0, total: 0 };
-        }
-
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        let db = null, auth = null, userId = null;
-
-        const tempoSelect = document.getElementById('tempoSelect');
-        const playbackStyleSelect = document.getElementById('playbackStyleSelect');
-        const rootSelect = document.getElementById('rootSelect');
-        const chordTypesContainer = document.getElementById('chordTypesContainer');
-        const selectAllBtn = document.getElementById('selectAllBtn');
-        const deselectAllBtn = document.getElementById('deselectAllBtn');
-        const playBtn = document.getElementById('playBtn');
-        const repeatBtn = document.getElementById('repeatBtn');
-        const statusFeedbackBar = document.getElementById('statusFeedbackBar');
-        const resetStatsBtn = document.getElementById('resetStatsBtn');
-        const toggleDetailedStats = document.getElementById('toggleDetailedStats');
-        const detailedStatsBox = document.getElementById('detailedStatsBox');
-        const closeStatsModalBtn = document.getElementById('closeStatsModalBtn');
-        const detailedStatsList = document.getElementById('detailedStatsList');
-        const modalCorrectCount = document.getElementById('modalCorrectCount');
-        const modalTotalCount = document.getElementById('modalTotalCount');
-        const modalAccuracyCount = document.getElementById('modalAccuracyCount');
-        const toggleSettingsBtn = document.getElementById('toggleSettingsBtn');
-        const chordSettingsModal = document.getElementById('chordSettingsModal');
-        const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-        const activeCountBadge = document.getElementById('activeCountBadge');
-        const quickTogglesContainer = document.getElementById('quickTogglesContainer');
-
-        async function initFirebase() {
-            if (!firebaseConfig) return;
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                userId = auth.currentUser?.uid;
-                if (userId) {
-                    await loadUserData();
-                }
-            } catch (e) {
-                console.error("Firebase init error:", e);
-            }
-        }
-
-        async function saveUserData() {
-            if (!userId || !db) return;
-            const activeCheckboxes = {};
-            document.querySelectorAll('.chord-checkbox').forEach(cb => {
-                activeCheckboxes[cb.value] = cb.checked;
-            });
-            const dataToSave = {
-                tempo: tempoSelect.value,
-                playbackStyle: playbackStyleSelect.value,
-                root: rootSelect.value,
-                checkboxes: activeCheckboxes,
-                stats: stats,
-                chordStats: chordStats
-            };
-            try {
-                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'user_data', 'profile');
-                await setDoc(docRef, dataToSave, { merge: true });
-            } catch (e) {
-                console.error("Save error:", e);
-            }
-        }
-
-        async function loadUserData() {
-            if (!userId || !db) return;
-            try {
-                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'user_data', 'profile');
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    if (data.tempo) tempoSelect.value = data.tempo;
-                    if (data.playbackStyle) playbackStyleSelect.value = data.playbackStyle;
-                    if (data.root) rootSelect.value = data.root;
-                    if (data.checkboxes) {
-                        for (const [key, val] of Object.entries(data.checkboxes)) {
-                            const cb = document.querySelector(`.chord-checkbox[value="${key}"]`);
-                            if (cb) cb.checked = val;
-                        }
-                    }
-                    if (data.stats) {
-                        stats = data.stats;
-                        updateStatsDisplay();
-                    }
-                    if (data.chordStats) {
-                        for (const [key, val] of Object.entries(data.chordStats)) {
-                            if (chordStats[key]) chordStats[key] = val;
-                        }
-                    }
-                    updateActiveBadge();
-                    renderAnswerButtons();
-                    prepareNewQuestion();
-                }
-            } catch (e) {
-                console.error("Load error:", e);
-            }
-        }
-
-        toggleSettingsBtn.onclick = () => chordSettingsModal.classList.remove('hidden');
-        closeSettingsBtn.onclick = () => {
-            chordSettingsModal.classList.add('hidden');
-            updateActiveBadge();
-            renderAnswerButtons();
-            prepareNewQuestion();
-            playCurrentChord();
-            saveUserData();
+        const DOM = {
+            get verbalCb() { return document.getElementById('verbalModeCb'); },
+            get tempo() { return document.getElementById('tempoSelect'); },
+            get playback() { return document.getElementById('playbackStyleSelect'); },
+            get timbre() { return document.getElementById('timbreSelect'); },
+            get root() { return document.getElementById('rootSelect'); },
+            get activeCount() { return document.getElementById('activeCount'); },
+            get btnSettings() { return document.getElementById('btnSettings'); },
+            get btnStats() { return document.getElementById('btnStats'); },
+            get btnNew() { return document.getElementById('btnNew'); },
+            get btnRepeat() { return document.getElementById('btnRepeat'); },
+            get btnVerbalNew() { return document.getElementById('btnVerbalNew'); },
+            get btnVerbalRepeat() { return document.getElementById('btnVerbalRepeat'); },
+            get statusBar() { return document.getElementById('statusBar'); },
+            get answersWrap() { return document.getElementById('answersWrapper'); },
+            get verbalWrap() { return document.getElementById('verbalWrapper'); },
+            get verbalDisplay() { return document.getElementById('verbalDisplay'); },
+            get btnShowAnswer() { return document.getElementById('btnShowAnswer'); },
+            get settingsModal() { return document.getElementById('settingsModal'); },
+            get settingsContent() { return document.getElementById('settingsContent'); },
+            get btnCloseSettings() { return document.getElementById('btnCloseSettings'); },
+            get statsModal() { return document.getElementById('statsModal'); },
+            get btnCloseStats() { return document.getElementById('btnCloseStats'); },
+            get btnResetStats() { return document.getElementById('btnResetStats'); },
+            get detailedStats() { return document.getElementById('detailedStats'); },
+            get overallAccuracy() { return document.getElementById('overallAccuracy'); }
         };
 
-        toggleDetailedStats.onclick = () => {
-            updateDetailedStatsDisplay();
-            detailedStatsBox.classList.remove('hidden');
-        };
-        closeStatsModalBtn.onclick = () => detailedStatsBox.classList.add('hidden');
-
-        tempoSelect.onchange = () => saveUserData();
-        playbackStyleSelect.onchange = () => saveUserData();
-        rootSelect.onchange = () => saveUserData();
-
-        function getCategoryKeys(catName) {
-            const keys = [];
-            const catData = CHORD_CATEGORIES[catName];
-            if (!catData) return keys;
-            catData.subgroups.forEach(sub => {
-                if (sub.isMajorMinorRows) {
-                    const majKeys = ['scale_nat_maj', 'scale_harm_maj', 'scale_mel_maj'];
-                    const minKeys = ['scale_nat_min', 'scale_harm_min', 'scale_mel_min'];
-                    sub.rows.forEach((row, idx) => {
-                        keys.push(majKeys[idx], minKeys[idx]);
-                    });
-                } else if (sub.chords) {
-                    for (const key in sub.chords) keys.push(key);
-                }
-            });
-            return keys;
-        }
-
-        function isCategoryFullyActive(catName) {
-            const catKeys = getCategoryKeys(catName);
-            if (catKeys.length === 0) return false;
-            const checkboxes = Array.from(document.querySelectorAll('.chord-checkbox')).filter(cb => catKeys.includes(cb.value));
-            return checkboxes.length > 0 && checkboxes.every(cb => cb.checked);
-        }
-
-        function setCategoryActive(catName, active) {
-            const catKeys = getCategoryKeys(catName);
-            document.querySelectorAll('.chord-checkbox').forEach(cb => {
-                if (catKeys.includes(cb.value)) {
-                    cb.checked = active;
-                }
-            });
-            updateActiveBadge();
-            renderAnswerButtons();
-            prepareNewQuestion();
-            saveUserData();
-        }
-
-        function renderQuickToggles() {
-            quickTogglesContainer.innerHTML = '';
-            for (const catName in CHORD_CATEGORIES) {
-                const isActive = isCategoryFullyActive(catName);
-                const btn = document.createElement('button');
-                btn.className = `px-2.5 py-1 font-medium rounded-lg text-[11px] border transition select-none flex items-center gap-1.5 ${isActive ? 'bg-indigo-950/80 border-indigo-700/70 text-indigo-200 shadow-sm' : 'bg-slate-950/40 border-slate-800 text-slate-500 hover:text-slate-300'}`;
-                
-                const shortNames = {
-                    'Интервалы': 'Интерв.',
-                    'Характерные интервалы': 'Хар.инт.',
-                    'Трезвучия': 'Трезв.',
-                    'Септаккорды': 'Септ.',
-                    'Лады и гаммы': 'Лады'
-                };
-
-                btn.innerHTML = `<span class="font-semibold">${shortNames[catName] || catName}</span><span class="${isActive ? 'text-indigo-400 font-bold text-xs' : 'text-slate-600'}">${isActive ? '●' : '○'}</span>`;
-                btn.title = `${catName}: Клик для вкл/выкл`;
-
-                btn.onclick = () => {
-                    const currentlyActive = isCategoryFullyActive(catName);
-                    setCategoryActive(catName, !currentlyActive);
-                    renderQuickToggles();
-                };
-
-                quickTogglesContainer.appendChild(btn);
-            }
-        }
-
-        function updateActiveBadge() {
-            const count = getActiveChordTypes().length;
-            activeCountBadge.textContent = count;
-            renderQuickToggles();
-        }
-
-        function initChordCheckboxes() {
-            chordTypesContainer.innerHTML = '';
-            
-            const mainGrid = document.createElement('div');
-            mainGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-2';
-
-            const entries = Object.entries(CHORD_CATEGORIES);
-            entries.forEach(([catName, catData], catIdx) => {
-                const mainGroupDiv = document.createElement('div');
-                mainGroupDiv.className = 'bg-slate-950/60 p-2 rounded-xl border border-slate-800 space-y-1.5 flex flex-col justify-between';
-                
-                const headerDiv = document.createElement('div');
-                headerDiv.className = 'flex justify-between items-center border-b border-slate-800 pb-1';
-                
-                const titleEl = document.createElement('div');
-                titleEl.className = 'text-xs font-bold text-indigo-400 uppercase tracking-wider';
-                titleEl.textContent = catName;
-                headerDiv.appendChild(titleEl);
-
-                const catToggleBtn = document.createElement('button');
-                catToggleBtn.className = 'text-[11px] text-indigo-300 hover:text-white underline';
-                catToggleBtn.textContent = 'Вкл / Выкл';
-                catToggleBtn.onclick = () => {
-                    const checkboxes = mainGroupDiv.querySelectorAll('.chord-checkbox');
-                    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                    checkboxes.forEach(cb => cb.checked = !allChecked);
-                    updateActiveBadge();
-                    renderQuickToggles();
-                    saveUserData();
-                };
-                headerDiv.appendChild(catToggleBtn);
-                mainGroupDiv.appendChild(headerDiv);
-
-                const subGrid = document.createElement('div');
-                subGrid.className = 'space-y-1.5 pt-0.5 flex-grow';
-
-                catData.subgroups.forEach(sub => {
-                    const subDiv = document.createElement('div');
-                    subDiv.className = 'space-y-1 bg-slate-900/50 p-1.5 rounded-lg border border-slate-800/80';
-                    
-                    const subInner = document.createElement('div');
-                    subInner.className = 'space-y-1';
-
-                    if (sub.title && catName !== 'Интервалы' && catName !== 'Характерные интервалы') {
-                        const subTitle = document.createElement('div');
-                        subTitle.className = 'text-[10px] font-bold text-indigo-300 uppercase tracking-wide border-b border-slate-800/70 pb-0.5 mb-0.5';
-                        subTitle.textContent = sub.title;
-                        subInner.appendChild(subTitle);
+        const DB_NAME = 'ChordTrainerDB';
+        const STORE_NAME = 'trainerData';
+        async function openDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(DB_NAME, 2);
+                req.onupgradeneeded = e => { 
+                    if (!e.target.result.objectStoreNames.contains(STORE_NAME)) {
+                        e.target.result.createObjectStore(STORE_NAME); 
                     }
-
-                    const listDiv = document.createElement('div');
-                    listDiv.className = 'space-y-1';
-
-                    if (sub.isMajorMinorRows) {
-                        const majKeys = ['scale_nat_maj', 'scale_harm_maj', 'scale_mel_maj'];
-                        const minKeys = ['scale_nat_min', 'scale_harm_min', 'scale_mel_min'];
-                        sub.rows.forEach((row, idx) => {
-                            const rowDiv = document.createElement('div');
-                            rowDiv.className = 'grid grid-cols-2 gap-1.5';
-                            
-                            const labelMaj = document.createElement('label');
-                            labelMaj.className = 'flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white select-none text-xs';
-                            labelMaj.innerHTML = `<input type="checkbox" value="${majKeys[idx]}" checked class="chord-checkbox custom-cb shrink-0"><span class="truncate font-medium">${row.maj.rawShort}</span>`;
-                            const cbMaj = labelMaj.querySelector('input');
-                            cbMaj.onchange = () => { updateActiveBadge(); saveUserData(); };
-                            rowDiv.appendChild(labelMaj);
-
-                            const labelMin = document.createElement('label');
-                            labelMin.className = 'flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white select-none text-xs';
-                            labelMin.innerHTML = `<input type="checkbox" value="${minKeys[idx]}" checked class="chord-checkbox custom-cb shrink-0"><span class="truncate font-medium">${row.min.rawShort}</span>`;
-                            const cbMin = labelMin.querySelector('input');
-                            cbMin.onchange = () => { updateActiveBadge(); saveUserData(); };
-                            rowDiv.appendChild(labelMin);
-
-                            listDiv.appendChild(rowDiv);
-                        });
-                    } else {
-                        const chordKeys = Object.keys(sub.chords);
-                        const isIntervalCat = (catName === 'Интервалы');
-                        const isCharIntervalCat = (catName === 'Характерные интервалы');
-                        
-                        const chordGrid = document.createElement('div');
-                        if (isIntervalCat || isCharIntervalCat) {
-                            chordGrid.className = 'grid grid-cols-2 gap-1.5';
-                        } else {
-                            chordGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-1.5';
-                        }
-
-                        chordKeys.forEach(key => {
-                            const chord = sub.chords[key];
-                            const label = document.createElement('label');
-                            label.className = 'flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white select-none text-xs';
-                            label.innerHTML = `
-                                <input type="checkbox" value="${key}" checked class="chord-checkbox custom-cb shrink-0">
-                                <span class="truncate font-medium">${chord.name || chord.rawShort}</span>
-                            `;
-                            const cb = label.querySelector('input');
-                            cb.onchange = () => { updateActiveBadge(); saveUserData(); };
-                            chordGrid.appendChild(label);
-                        });
-                        listDiv.appendChild(chordGrid);
-                    }
-                    subInner.appendChild(listDiv);
-                    subDiv.appendChild(subInner);
-                    subGrid.appendChild(subDiv);
+                };
+                req.onsuccess = e => resolve(e.target.result);
+                req.onerror = e => reject(e.target.error);
+            });
+        }
+        async function getSavedData(key) {
+            try {
+                const db = await openDB();
+                return new Promise(resolve => {
+                    const tx = db.transaction(STORE_NAME, 'readonly');
+                    const req = tx.objectStore(STORE_NAME).get(key);
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => resolve(null);
                 });
-
-                mainGroupDiv.appendChild(subGrid);
-                mainGrid.appendChild(mainGroupDiv);
-            });
-            chordTypesContainer.appendChild(mainGrid);
-            updateActiveBadge();
-            renderQuickToggles();
+            } catch (e) { return null; }
+        }
+        async function setSavedData(key, value) {
+            try {
+                const db = await openDB();
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                tx.objectStore(STORE_NAME).put(value, key);
+            } catch (e) {}
         }
 
-        selectAllBtn.onclick = () => {
-            document.querySelectorAll('.chord-checkbox').forEach(cb => cb.checked = true);
-            updateActiveBadge();
-            renderQuickToggles();
-            renderAnswerButtons();
-            prepareNewQuestion();
-            saveUserData();
-        };
-
-        deselectAllBtn.onclick = () => {
-            document.querySelectorAll('.chord-checkbox').forEach(cb => cb.checked = false);
-            updateActiveBadge();
-            renderQuickToggles();
-            renderAnswerButtons();
-            saveUserData();
-        };
-
-        function getActiveChordTypes() {
-            const active = [];
-            document.querySelectorAll('.chord-checkbox').forEach(cb => {
-                if (cb.checked) active.push(cb.value);
-            });
-            return active;
-        }
+        let audioCtx = null;
+        let activeNodes = [];
 
         function getAudioContext() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
             return audioCtx;
         }
 
-        function stopActiveNotes() {
-            if (playbackTimer) {
-                clearTimeout(playbackTimer);
-                playbackTimer = null;
-            }
-            const ctx = getAudioContext();
-            activeNodes.forEach(node => {
-                try {
-                    node.gain.gain.cancelScheduledValues(ctx.currentTime);
-                    node.gain.gain.setValueAtTime(node.gain.gain.value, ctx.currentTime);
-                    node.gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.02);
-                    node.osc.stop(ctx.currentTime + 0.03);
-                } catch(e) {}
+        function stopAudio() {
+            activeNodes.forEach(n => {
+                try { 
+                    n.gain.gain.cancelScheduledValues(audioCtx.currentTime);
+                    n.gain.gain.setValueAtTime(n.gain.gain.value, audioCtx.currentTime);
+                    n.gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                    if (n.oscs) {
+                        n.oscs.forEach(osc => osc.stop(audioCtx.currentTime + 0.06));
+                    } else if (n.osc) {
+                        n.osc.stop(audioCtx.currentTime + 0.06); 
+                    }
+                } catch (e) {}
             });
             activeNodes = [];
         }
 
-        function midiToFreq(midi) {
-            return 440 * Math.pow(2, (midi - 69) / 12);
-        }
-
-        function playTone(freq, startTime, duration, isSustained = false) {
+        function playFrequencies(freqs, durationMs, type = 'arpeggio', isScale = false) {
+            stopAudio();
             const ctx = getAudioContext();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            const masterVol = 0.8;
-
-            const attackTime = 0.03;
-            const releaseTime = isSustained ? 0.35 : Math.min(0.2, duration * 0.25);
-
-            osc.type = 'sine';
-            gain.gain.setValueAtTime(0, startTime);
-            gain.gain.linearRampToValueAtTime(0.18 * masterVol, startTime + attackTime);
             
-            const releaseStart = Math.max(startTime + attackTime, startTime + duration - releaseTime);
-            gain.gain.setValueAtTime(0.18 * masterVol, releaseStart);
-            gain.gain.linearRampToValueAtTime(0.0001, startTime + duration);
-
-            osc.frequency.setValueAtTime(freq, startTime);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-
-            osc.start(startTime);
-            osc.stop(startTime + duration);
-
-            const nodeObj = { osc, gain };
-            activeNodes.push(nodeObj);
-            setTimeout(() => {
-                const idx = activeNodes.indexOf(nodeObj);
-                if (idx !== -1) activeNodes.splice(idx, 1);
-            }, (startTime - ctx.currentTime + duration) * 1000);
-        }
-
-        function playCurrentChord() {
-            const ctx = getAudioContext();
-            if (!currentChord) {
-                prepareNewQuestion();
-            }
-            stopActiveNotes(); 
+            const tempoMultiplier = DOM.tempo.value === 'very_slow' ? 1.5 : 
+                                    DOM.tempo.value === 'slow' ? 1.2 : 
+                                    DOM.tempo.value === 'fast' ? 0.6 : 1.0;
+            const timbre = DOM.timbre ? DOM.timbre.value : 'piano';
             
-            const now = ctx.currentTime + 0.05;
-            const tempoSetting = tempoSelect.value;
-            const playbackStyle = playbackStyleSelect.value;
-            const chordObj = ALL_CHORDS[currentChord];
-
-            const stepTime = tempoSetting === 'very_slow' ? 0.6 : (tempoSetting === 'slow' ? 0.4 : (tempoSetting === 'fast' ? 0.15 : 0.25));
-            const rootNoteName = currentRoot;
-            const rootMidi = 60 + NOTE_OFFSETS[rootNoteName];
-            const intervals = chordObj.intervals;
-
-            let duration = 2.5;
-
-            if (chordObj.type === 'scale') {
-                const isFolkOrPent = currentChord.startsWith('mode_') || currentChord.startsWith('pent_');
-                const scaleStep = stepTime; 
-                duration = intervals.length * scaleStep + 0.4;
+            const delaySec = (durationMs / 1000) * tempoMultiplier;
+            const sustainDuration = 2.5; 
+            const fadeOutDuration = 1.0;
+            
+            freqs.forEach((freq, i) => {
+                let startTime, stopTime, fadeOutStart;
                 
-                intervals.forEach((interval, idx) => {
-                    const freq = midiToFreq(rootMidi + interval);
-                    const noteStart = now + idx * scaleStep;
-                    const noteDuration = scaleStep + (isFolkOrPent ? 0.45 : 0.35); 
-                    playTone(freq, noteStart, noteDuration, true);
-                });
-            } else if (chordObj.type === 'interval') {
-                duration = 3.2;
-                const freq1 = midiToFreq(rootMidi + intervals[0]);
-                const freq2 = midiToFreq(rootMidi + intervals[1]);
-
-                if (playbackStyle === 'harmonic') {
-                    playTone(freq1, now, duration, true);
-                    playTone(freq2, now, duration, true);
+                if (isScale) {
+                    // Гаммы играются чистым легато (с небольшим наложением для бесшовности)
+                    startTime = ctx.currentTime + i * delaySec;
+                    stopTime = startTime + delaySec + 0.15; // Наложение 150мс на следующую ноту
+                } else if (type === 'arpeggio') {
+                    // Арпеджио: набираются последовательно, звучат вместе до конца
+                    startTime = ctx.currentTime + i * delaySec;
+                    const lastNoteStart = ctx.currentTime + (freqs.length - 1) * delaySec;
+                    fadeOutStart = lastNoteStart + sustainDuration;
+                    stopTime = fadeOutStart + fadeOutDuration;
                 } else {
-                    playTone(freq1, now, duration, true);
-                    playTone(freq2, now + 0.8, duration - 0.8, true);
+                    // Гармонически: все одновременно
+                    startTime = ctx.currentTime;
+                    fadeOutStart = ctx.currentTime + sustainDuration;
+                    stopTime = fadeOutStart + fadeOutDuration;
                 }
-            } else if (chordObj.type === 'characteristic_interval') {
-                const baseDuration = 1.8;
-                const microPause = 0.7;
-
-                const freq1 = midiToFreq(rootMidi + intervals[0]);
-                const freq2 = midiToFreq(rootMidi + intervals[1]);
-
-                if (playbackStyle === 'harmonic') {
-                    playTone(freq1, now, baseDuration, true);
-                    playTone(freq2, now, baseDuration, true);
+                
+                const masterGain = ctx.createGain();
+                const maxVol = 0.4 / Math.sqrt(freqs.length); // Защита от клиппинга
+                
+                if (isScale) {
+                    masterGain.gain.setValueAtTime(0, startTime);
+                    masterGain.gain.linearRampToValueAtTime(maxVol, startTime + 0.02);
+                    masterGain.gain.setValueAtTime(maxVol, stopTime - 0.15);
+                    masterGain.gain.linearRampToValueAtTime(0, stopTime);
                 } else {
-                    playTone(freq1, now, baseDuration, true);
-                    playTone(freq2, now + 0.7, baseDuration - 0.7, true);
-                }
-
-                const resStart = now + baseDuration + microPause;
-                const resFreq1 = midiToFreq(rootMidi + chordObj.resolution[0]);
-                const resFreq2 = midiToFreq(rootMidi + chordObj.resolution[1]);
-
-                if (playbackStyle === 'harmonic') {
-                    playTone(resFreq1, resStart, baseDuration, true);
-                    playTone(resFreq2, resStart, baseDuration, true);
-                } else {
-                    playTone(resFreq1, resStart, baseDuration, true);
-                    playTone(resFreq2, resStart + 0.7, baseDuration - 0.7, true);
-                }
-
-                duration = (resStart + baseDuration) - now + 0.3;
-            } else if (playbackStyle === 'arpeggio') {
-                duration = 3.5;
-                intervals.forEach((interval, idx) => {
-                    const freq = midiToFreq(rootMidi + interval);
-                    const noteStart = now + idx * stepTime;
-                    const noteDuration = duration - (idx * stepTime);
-                    playTone(freq, noteStart, noteDuration, true);
-                });
-            } else {
-                duration = 2.8;
-                intervals.forEach(interval => {
-                    const freq = midiToFreq(rootMidi + interval);
-                    playTone(freq, now, duration, true);
-                });
-            }
-        }
-
-        function prepareNewQuestion() {
-            const activeTypes = getActiveChordTypes();
-            if (activeTypes.length === 0) {
-                document.querySelectorAll('.chord-checkbox').forEach(cb => cb.checked = true);
-                updateActiveBadge();
-            }
-            const currentActiveTypes = getActiveChordTypes();
-            currentChord = currentActiveTypes[Math.floor(Math.random() * currentActiveTypes.length)];
-
-            const selectedRootSetting = rootSelect.value;
-            if (selectedRootSetting === 'random') {
-                currentRoot = NOTE_NAMES[Math.floor(Math.random() * NOTE_NAMES.length)];
-            } else {
-                currentRoot = selectedRootSetting;
-            }
-
-            canAnswer = true;
-            showFeedback('🎵 Прослушайте звук и выберите ответ', 'neutral');
-            renderAnswerButtons();
-        }
-
-        function renderAnswerButtons() {
-            const answersContainer = document.getElementById('answersContainer');
-            answersContainer.innerHTML = '';
-            const activeTypes = getActiveChordTypes();
-
-            for (const [catName, catData] of Object.entries(CHORD_CATEGORIES)) {
-                const activeSubgroups = catData.subgroups.map(sub => {
-                    if (sub.isMajorMinorRows) {
-                        const majKeys = ['scale_nat_maj', 'scale_harm_maj', 'scale_mel_maj'];
-                        const minKeys = ['scale_nat_min', 'scale_harm_min', 'scale_mel_min'];
-                        const activeRows = [];
-                        sub.rows.forEach((row, idx) => {
-                            if (activeTypes.includes(majKeys[idx]) || activeTypes.includes(minKeys[idx])) {
-                                activeRows.push({ idx, row, hasMaj: activeTypes.includes(majKeys[idx]), hasMin: activeTypes.includes(minKeys[idx]) });
-                            }
-                        });
-                        return { title: sub.title, isMajorMinorRows: true, activeRows, rows: sub.rows, majKeys, minKeys };
+                    masterGain.gain.setValueAtTime(0, startTime);
+                    masterGain.gain.linearRampToValueAtTime(maxVol, startTime + 0.02);
+                    
+                    // Естественное затухание для фортепиано
+                    if (timbre === 'piano' || timbre === 'epiano') {
+                        masterGain.gain.exponentialRampToValueAtTime(maxVol * 0.15, fadeOutStart);
                     } else {
-                        const activeChords = Object.keys(sub.chords).filter(key => activeTypes.includes(key));
-                        return { title: sub.title, isMajorMinorRows: false, chords: activeChords, chordsMap: sub.chords };
+                        masterGain.gain.setValueAtTime(maxVol, fadeOutStart);
                     }
-                }).filter(sub => sub.isMajorMinorRows ? sub.activeRows.length > 0 : sub.chords.length > 0);
+                    
+                    masterGain.gain.exponentialRampToValueAtTime(0.001, stopTime);
+                }
+                
+                masterGain.connect(ctx.destination);
+                
+                let nodesToStop = [];
+                
+                // Синтез различных тембров
+                if (timbre === 'piano') {
+                    const osc1 = ctx.createOscillator(); osc1.type = 'triangle'; osc1.frequency.value = freq;
+                    const osc2 = ctx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = freq;
+                    const osc3 = ctx.createOscillator(); osc3.type = 'sine'; osc3.frequency.value = freq * 2; 
 
-                if (activeSubgroups.length === 0) continue;
+                    const filter = ctx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    // Смягчаем пианино, срезая резкие высокие частоты
+                    filter.frequency.setValueAtTime(1800, startTime);
+                    filter.frequency.exponentialRampToValueAtTime(250, stopTime);
+                    
+                    const gain1 = ctx.createGain(); gain1.gain.value = 1.0;
+                    const gain2 = ctx.createGain(); gain2.gain.value = 0.8;
+                    const gain3 = ctx.createGain(); gain3.gain.value = 0.05; // Уменьшаем высокие гармоники
 
-                const groupDiv = document.createElement('div');
-                groupDiv.className = 'bg-slate-950/50 p-1.5 rounded-xl border border-slate-800/80 space-y-1';
+                    osc1.connect(gain1); osc2.connect(gain2); osc3.connect(gain3);
+                    gain1.connect(filter); gain2.connect(filter); gain3.connect(filter);
+                    filter.connect(masterGain);
 
-                const titleEl = document.createElement('div');
-                titleEl.className = 'text-[11px] font-semibold text-indigo-400 uppercase tracking-wider';
-                titleEl.textContent = catName;
-                groupDiv.appendChild(titleEl);
+                    osc1.start(startTime); osc2.start(startTime); osc3.start(startTime);
+                    nodesToStop.push(osc1, osc2, osc3);
+                } else if (timbre === 'epiano') {
+                    const osc1 = ctx.createOscillator(); osc1.type = 'sine'; osc1.frequency.value = freq;
+                    const osc2 = ctx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = freq * 2.01;
+                    const osc3 = ctx.createOscillator(); osc3.type = 'sine'; osc3.frequency.value = freq * 3.02;
 
-                activeSubgroups.forEach(sub => {
-                    const subWrapper = document.createElement('div');
-                    subWrapper.className = 'space-y-1 bg-slate-900/30 p-1.5 rounded-lg border border-slate-800/60';
+                    const gain1 = ctx.createGain(); gain1.gain.value = 1.0;
+                    const gain2 = ctx.createGain(); gain2.gain.value = 0.4;
+                    const gain3 = ctx.createGain(); gain3.gain.value = 0.2;
 
-                    if (sub.title && catName !== 'Интервалы' && catName !== 'Характерные интервалы') {
-                        const subHeader = document.createElement('div');
-                        subHeader.className = 'text-[10px] font-bold text-indigo-300 uppercase tracking-wide px-0.5';
-                        subHeader.textContent = sub.title;
-                        subWrapper.appendChild(subHeader);
+                    osc1.connect(gain1); osc2.connect(gain2); osc3.connect(gain3);
+                    gain1.connect(masterGain); gain2.connect(masterGain); gain3.connect(masterGain);
+                    
+                    osc1.start(startTime); osc2.start(startTime); osc3.start(startTime);
+                    nodesToStop.push(osc1, osc2, osc3);
+                } else if (timbre === 'organ') {
+                    const osc1 = ctx.createOscillator(); osc1.type = 'sine'; osc1.frequency.value = freq;
+                    const osc2 = ctx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = freq * 2;
+                    const osc3 = ctx.createOscillator(); osc3.type = 'sine'; osc3.frequency.value = freq * 3;
+                    
+                    const gain1 = ctx.createGain(); gain1.gain.value = 0.8;
+                    const gain2 = ctx.createGain(); gain2.gain.value = 0.5;
+                    const gain3 = ctx.createGain(); gain3.gain.value = 0.3;
+
+                    osc1.connect(gain1); osc2.connect(gain2); osc3.connect(gain3);
+                    gain1.connect(masterGain); gain2.connect(masterGain); gain3.connect(masterGain);
+
+                    osc1.start(startTime); osc2.start(startTime); osc3.start(startTime);
+                    nodesToStop.push(osc1, osc2, osc3);
+                } else if (timbre === 'strings') {
+                    const osc1 = ctx.createOscillator(); osc1.type = 'sawtooth'; osc1.frequency.value = freq; osc1.detune.value = -8;
+                    const osc2 = ctx.createOscillator(); osc2.type = 'sawtooth'; osc2.frequency.value = freq; osc2.detune.value = 8;
+                    
+                    const filter = ctx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.value = 2500;
+
+                    // Мягкая атака для струнных, если это не быстрая гамма
+                    if (!isScale) {
+                        masterGain.gain.cancelScheduledValues(startTime);
+                        masterGain.gain.setValueAtTime(0, startTime);
+                        masterGain.gain.linearRampToValueAtTime(maxVol, startTime + 0.2); 
+                        masterGain.gain.setValueAtTime(maxVol, fadeOutStart);
+                        masterGain.gain.linearRampToValueAtTime(0, stopTime);
                     }
 
-                    if (sub.isMajorMinorRows) {
-                        const gridDiv = document.createElement('div');
-                        gridDiv.className = 'space-y-1';
-                        sub.activeRows.forEach(item => {
-                            const row = document.createElement('div');
-                            row.className = 'grid grid-cols-2 gap-1.5';
-                            if (item.hasMaj) {
-                                row.appendChild(createAnswerButton(sub.majKeys[item.idx], sub.rows[item.idx].maj));
-                            } else {
-                                row.appendChild(document.createElement('div'));
-                            }
-                            if (item.hasMin) {
-                                row.appendChild(createAnswerButton(sub.minKeys[item.idx], sub.rows[item.idx].min));
-                            } else {
-                                row.appendChild(document.createElement('div'));
-                            }
-                            gridDiv.appendChild(row);
-                        });
-                        subWrapper.appendChild(gridDiv);
-                    } else {
-                        const gridDiv = document.createElement('div');
-                        
-                        if (catName === 'Интервалы' || catName === 'Характерные интервалы') {
-                            gridDiv.className = 'grid grid-cols-2 gap-1.5';
-                        } else {
-                            gridDiv.className = 'grid grid-cols-3 sm:grid-cols-4 gap-1.5';
-                        }
-
-                        sub.chords.forEach(typeKey => {
-                            gridDiv.appendChild(createAnswerButton(typeKey, sub.chordsMap[typeKey]));
-                        });
-                        subWrapper.appendChild(gridDiv);
-                    }
-
-                    groupDiv.appendChild(subWrapper);
-                });
-
-                answersContainer.appendChild(groupDiv);
-            }
+                    osc1.connect(filter); osc2.connect(filter);
+                    filter.connect(masterGain);
+                    
+                    osc1.start(startTime); osc2.start(startTime);
+                    nodesToStop.push(osc1, osc2);
+                } else {
+                    const osc = ctx.createOscillator();
+                    osc.type = 'triangle';
+                    osc.frequency.value = freq;
+                    osc.connect(masterGain);
+                    osc.start(startTime);
+                    nodesToStop.push(osc);
+                }
+                
+                nodesToStop.forEach(osc => osc.stop(stopTime));
+                activeNodes.push({ oscs: nodesToStop, gain: masterGain });
+            });
         }
 
-        function createAnswerButton(typeKey, chordInfo) {
-            const btn = document.createElement('button');
-            btn.className = 'py-1.5 px-1 bg-slate-800/90 hover:bg-slate-700 active:bg-slate-600 rounded-xl text-xs font-medium text-slate-200 transition text-center border border-slate-700/80 flex flex-col items-center justify-center shadow-sm';
-            btn.dataset.chordKey = typeKey;
+        function playCurrentItem(isResolution = false) {
+            if (!currentItemKey) return;
+            const item = ALL_ITEMS[currentItemKey];
+            const intervals = isResolution ? item.res : item.int;
+            if (!intervals) return; 
             
-            if (chordInfo.hint && chordInfo.type === 'scale') {
-                btn.innerHTML = `<span class="font-bold text-indigo-300 leading-tight">${chordInfo.rawShort}</span><span class="text-[9px] text-slate-400 font-mono mt-0.5">${chordInfo.hint}</span>`;
+            const midiNotes = intervals.map(inter => currentBaseNote + inter);
+            const freqs = midiNotes.map(m => 440 * Math.pow(2, (m - 69) / 12));
+            
+            // Разрешения играются гармонически, а лады всегда арпеджио
+            const isScale = item.cat.startsWith('scale');
+            const playStyle = isResolution ? 'harmonic' : (isScale ? 'arpeggio' : DOM.playback.value);
+            
+            // Base delay for arpeggio steps
+            const delay = 350; 
+            
+            // Передаем isScale && !isResolution, чтобы не применять логику гамм к разрешениям
+            playFrequencies(freqs, delay, playStyle, isScale && !isResolution);
+        }
+
+        function nextItem() {
+            if (activeKeys.length === 0) {
+                setStatus('Выберите элементы в настройках!', 'error');
+                return;
+            }
+            
+            const randIdx = Math.floor(Math.random() * activeKeys.length);
+            currentItemKey = activeKeys[randIdx];
+            
+            const rootOpt = DOM.root.value;
+            if (rootOpt === 'random') {
+                currentBaseNote = 60 + Math.floor(Math.random() * 12); // C4 to B4
+                currentBaseName = NOTE_NAMES[currentBaseNote % 12];
             } else {
-                btn.innerHTML = `<span class="font-bold text-indigo-300 leading-tight">${chordInfo.rawShort}</span>`;
+                const baseOffsets = {'C':0, 'C#':1, 'D':2, 'D#':3, 'E':4, 'F':5, 'F#':6, 'G':7, 'G#':8, 'A':9, 'A#':10, 'B':11};
+                currentBaseNote = 60 + baseOffsets[rootOpt];
+                currentBaseName = rootOpt;
             }
-            
-            btn.onclick = () => handleAnswer(typeKey, btn);
-            return btn;
+
+            if (isVerbalMode && DOM.verbalDisplay) {
+                DOM.verbalDisplay.textContent = '???';
+                DOM.verbalDisplay.className = 'w-full max-w-md h-24 bg-slate-900 border border-slate-700 rounded-2xl flex flex-col items-center justify-center shadow-inner text-slate-500 font-bold text-lg px-4 text-center transition-all';
+                DOM.btnShowAnswer.classList.remove('hidden');
+            } else {
+                document.querySelectorAll('.ans-btn').forEach(b => {
+                    b.classList.remove('correct', 'wrong');
+                    b.disabled = false;
+                });
+            }
+
+            setStatus('🎵 Прослушайте и выберите ответ', 'normal');
+            playCurrentItem();
         }
 
-        function areIntervalsEqual(arr1, arr2) {
-            if (arr1.length !== arr2.length) return false;
-            return arr1.every((val, idx) => val === arr2[idx]);
+        function getFullDesc(key) {
+            const item = ALL_ITEMS[key];
+            let desc = `${currentBaseName} ${item.name}`;
+            if (item.hint) desc += ` <span class="text-xs opacity-70">(${item.hint})</span>`;
+            if (item.resText) desc += `<br><span class="text-[11px] font-normal text-emerald-200 opacity-90 mt-1 block tracking-wide">Разрешение ${item.resText}</span>`;
+            return desc;
         }
 
-        function handleAnswer(selectedKey, buttonElement) {
-            if (!canAnswer) return;
-            canAnswer = false;
-
-            stats.total++;
-            chordStats[currentChord].total++;
+        function handleAnswer(key, btn) {
+            if (!currentItemKey) return;
             
-            const selectedChord = ALL_CHORDS[selectedKey];
-            const currentChordObj = ALL_CHORDS[currentChord];
+            document.querySelectorAll('.ans-btn').forEach(b => b.disabled = true);
             
-            const isCorrect = (selectedKey === currentChord) || 
-                              (currentChordObj.type !== 'characteristic_interval' && areIntervalsEqual(selectedChord.intervals, currentChordObj.intervals));
-
+            const isCorrect = (key === currentItemKey);
+            
+            if (!stats[currentItemKey]) stats[currentItemKey] = { correct: 0, total: 0 };
+            stats[currentItemKey].total++;
+            if (isCorrect) stats[currentItemKey].correct++;
+            saveData();
+            
             if (isCorrect) {
-                stats.correct++;
-                chordStats[currentChord].correct++;
-            }
-
-            const allButtons = document.querySelectorAll('#answersContainer button');
-            allButtons.forEach(btn => {
-                const btnChord = ALL_CHORDS[btn.dataset.chordKey];
-                if (btnChord && (btn.dataset.chordKey === currentChord || areIntervalsEqual(btnChord.intervals, currentChordObj.intervals))) {
-                    btn.classList.add('bg-emerald-600/30', 'border-emerald-500', 'text-emerald-200');
+                btn.classList.add('correct');
+                const item = ALL_ITEMS[currentItemKey];
+                
+                if (item.res) {
+                    setStatus(`✅ Верно! Разрешается ${item.resText}`, 'success');
+                    setTimeout(() => playCurrentItem(true), 1200);
+                    setTimeout(nextItem, 3800);
+                } else {
+                    setStatus('✅ Верно!', 'success');
+                    setTimeout(nextItem, 1000);
                 }
+            } else {
+                btn.classList.add('wrong');
+                const correctBtn = document.querySelector(`button[data-key="${currentItemKey}"]`);
+                if(correctBtn) correctBtn.classList.add('correct');
+                setStatus('❌ Ошибка. Правильный ответ показан.', 'error');
+            }
+        }
+
+        function showVerbalAnswer() {
+            if (!currentItemKey || !DOM.verbalDisplay) return;
+            DOM.verbalDisplay.innerHTML = getFullDesc(currentItemKey);
+            DOM.verbalDisplay.className = 'w-full max-w-md h-24 bg-emerald-950/40 border border-emerald-800/50 rounded-2xl flex flex-col items-center justify-center shadow-inner text-emerald-300 font-bold text-[15px] sm:text-base px-3 text-center transition-all leading-snug';
+            DOM.btnShowAnswer.classList.add('hidden');
+            
+            const item = ALL_ITEMS[currentItemKey];
+            if (item.res) {
+                setTimeout(() => playCurrentItem(true), 400);
+            }
+            
+            if (!stats[currentItemKey]) stats[currentItemKey] = { correct: 0, total: 0 };
+            stats[currentItemKey].total++;
+            saveData();
+        }
+
+        function setStatus(text, type) {
+            if(!DOM.statusBar) return;
+            DOM.statusBar.innerHTML = text;
+            DOM.statusBar.className = 'w-full py-2 px-3 rounded-xl text-xs font-semibold text-center shrink-0 shadow-inner flex flex-col items-center justify-center transition-all duration-300 min-h-[36px] ' + 
+                (type === 'success' ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/60' : 
+                 type === 'error' ? 'bg-rose-950/80 text-rose-300 border border-rose-800/60' : 
+                 'glass-panel text-indigo-300');
+        }
+
+        function handleCategoryToggle(catId, isChecked) {
+            const catItems = CATS[catId].map(i => i.key);
+            if (isChecked) {
+                catItems.forEach(key => { if (!activeKeys.includes(key)) activeKeys.push(key); });
+            } else {
+                activeKeys = activeKeys.filter(key => !catItems.includes(key));
+            }
+            syncCheckboxes();
+            updateActiveCount();
+            saveData();
+            buildAnswerGrid();
+        }
+
+        function syncCheckboxes() {
+            document.querySelectorAll('.group-cb').forEach(cb => {
+                cb.checked = activeKeys.includes(cb.value);
             });
 
-            let chordDesc = `${currentRoot} ${currentChordObj.name}`;
-            if (currentChordObj.resolutionText) {
-                chordDesc += ` (${currentChordObj.resolutionText})`;
-            }
-
-            if (isCorrect) {
-                buttonElement.classList.remove('bg-slate-800/90', 'hover:bg-slate-700');
-                buttonElement.classList.add('bg-emerald-600', 'border-emerald-400', 'text-white');
-                showFeedback(`✓ Верно: ${chordDesc}`, 'success');
-
-                updateStatsDisplay();
-                saveUserData();
-
-                setTimeout(() => {
-                    prepareNewQuestion();
-                    playCurrentChord();
-                }, 900);
-            } else {
-                buttonElement.classList.remove('bg-slate-800/90', 'hover:bg-slate-700');
-                buttonElement.classList.add('bg-rose-600/80', 'border-rose-400', 'text-white');
-                showFeedback(`✗ Неверно: это был ${chordDesc}`, 'error');
-
-                updateStatsDisplay();
-                saveUserData();
-            }
-        }
-
-        function showFeedback(text, type) {
-            statusFeedbackBar.textContent = text;
-            statusFeedbackBar.className = 'w-full py-2 px-4 rounded-xl text-xs font-semibold text-center shrink-0 transition-all border shadow-md';
-            
-            if (type === 'success') {
-                statusFeedbackBar.classList.add('bg-emerald-950/85', 'text-emerald-200', 'border-emerald-700');
-            } else if (type === 'error') {
-                statusFeedbackBar.classList.add('bg-rose-950/85', 'text-rose-200', 'border-rose-700');
-            } else {
-                statusFeedbackBar.classList.add('bg-slate-900/95', 'text-indigo-300', 'border-slate-800');
-            }
-        }
-
-        function updateStatsDisplay() {
-            modalCorrectCount.textContent = stats.correct;
-            modalTotalCount.textContent = stats.total;
-            const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-            modalAccuracyCount.textContent = accuracy + '%';
-        }
-
-        function updateDetailedStatsDisplay() {
-            updateStatsDisplay();
-            detailedStatsList.innerHTML = '';
-            
-            for (const [catName, catData] of Object.entries(CHORD_CATEGORIES)) {
-                const catKeys = [];
-                catData.subgroups.forEach(sub => {
-                    if (sub.isMajorMinorRows) {
-                        const majKeys = ['scale_nat_maj', 'scale_harm_maj', 'scale_mel_maj'];
-                        const minKeys = ['scale_nat_min', 'scale_harm_min', 'scale_mel_min'];
-                        sub.rows.forEach((row, idx) => {
-                            catKeys.push(majKeys[idx], minKeys[idx]);
-                        });
-                    } else if (sub.chords) {
-                        for (const key in sub.chords) catKeys.push(key);
-                    }
+            CATEGORIES_INFO.forEach(cat => {
+                const catItems = CATS[cat.id].map(i => i.key);
+                const allActive = catItems.length > 0 && catItems.every(key => activeKeys.includes(key));
+                document.querySelectorAll(`.cat-master-cb[data-cat="${cat.id}"], .quick-master-cb[data-cat="${cat.id}"]`).forEach(cb => {
+                    cb.checked = allActive;
                 });
+            });
+        }
 
-                const activeItemsInCat = catKeys.filter(k => chordStats[k].total > 0);
-                if (activeItemsInCat.length === 0) continue;
+        function buildQuickToggles() {
+            const container = document.getElementById('quickCategoryToggles');
+            if(!container) return;
+            container.innerHTML = CATEGORIES_INFO.map(cat => `
+                <label class="flex items-center gap-1.5 cursor-pointer group hover:bg-slate-800/50 px-1.5 py-1 rounded transition-colors">
+                    <input type="checkbox" data-cat="${cat.id}" class="custom-cb quick-master-cb border-indigo-500/50">
+                    <span class="text-[9.5px] font-semibold text-slate-400 group-hover:text-indigo-200 uppercase tracking-wider">${cat.label}</span>
+                </label>
+            `).join('');
+            
+            document.querySelectorAll('.quick-master-cb').forEach(cb => {
+                cb.addEventListener('change', (e) => handleCategoryToggle(e.target.dataset.cat, e.target.checked));
+            });
+        }
 
-                const categorySection = document.createElement('div');
-                categorySection.className = 'space-y-1.5 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800';
+        function buildSettings() {
+            let html = '';
+            const createHeader = (catId, label) => `
+                <label class="flex items-center gap-2 cursor-pointer mb-2 hover:bg-slate-700/40 p-1.5 rounded-lg transition-colors group border-b border-slate-700/50 pb-2">
+                    <input type="checkbox" data-cat="${catId}" class="custom-cb cat-master-cb border-indigo-400/60">
+                    <h4 class="text-[11px] text-indigo-300 uppercase font-extrabold tracking-widest">${label}</h4>
+                </label>
+            `;
 
-                const catHeader = document.createElement('div');
-                catHeader.className = 'text-xs font-bold text-indigo-400 uppercase tracking-wider border-b border-slate-800 pb-1';
-                catHeader.textContent = catName;
-                categorySection.appendChild(catHeader);
+            const renderCb = i => `
+                <label class="flex items-center gap-1.5 cursor-pointer text-[10px] sm:text-[11px] font-medium hover:bg-slate-700/50 p-1.5 rounded-lg transition-colors bg-slate-800/30 border border-slate-700/30" title="${i.hint || ''}">
+                    <input type="checkbox" value="${i.key}" class="custom-cb group-cb">
+                    <span class="truncate">${i.short}</span>
+                </label>
+            `;
 
-                const itemsGrid = document.createElement('div');
-                itemsGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1';
+            // ROW 1: Intervals
+            html += `
+            <div class="bg-slate-800/30 p-2 rounded-xl border border-slate-700/50 flex flex-col md:flex-row gap-2">
+                <div class="flex-1">
+                    ${createHeader('simple', 'Простые интервалы')}
+                    <div class="grid grid-cols-2 gap-1.5">
+                        ${CATS.simple.map(renderCb).join('')}
+                    </div>
+                </div>
+                <div class="w-px bg-slate-700/50 my-2 hidden md:block"></div>
+                <div class="flex-1">
+                    ${createHeader('char', 'Характерные интервалы')}
+                    <div class="grid grid-cols-2 gap-1.5">
+                        ${CATS.char.map(renderCb).join('')}
+                    </div>
+                </div>
+            </div>`;
 
+            // ROW 2: Chords
+            const triadsMaj = ['triad_maj', 'triad_maj6', 'triad_maj64'].map(k => ALL_ITEMS[k]);
+            const triadsMin = ['triad_min', 'triad_min6', 'triad_min64'].map(k => ALL_ITEMS[k]);
+            const triadsOther = ['triad_aug', 'triad_dim'].map(k => ALL_ITEMS[k]);
+
+            html += `
+            <div class="bg-slate-800/30 p-2 rounded-xl border border-slate-700/50 flex flex-col md:flex-row gap-2">
+                <div class="flex-[1.5]">
+                    ${createHeader('triad', 'Трезвучия')}
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <div class="flex flex-col gap-1">${triadsMaj.map(renderCb).join('')}</div>
+                        <div class="flex flex-col gap-1">${triadsMin.map(renderCb).join('')}</div>
+                        <div class="flex flex-col gap-1">${triadsOther.map(renderCb).join('')}</div>
+                    </div>
+                </div>
+                <div class="w-px bg-slate-700/50 my-2 hidden md:block"></div>
+                <div class="flex-1">
+                    ${createHeader('seventh', 'Септаккорды')}
+                    <div class="flex flex-col gap-1">${CATS.seventh.map(renderCb).join('')}</div>
+                </div>
+                <div class="w-px bg-slate-700/50 my-2 hidden md:block"></div>
+                <div class="flex-1">
+                    ${createHeader('d7inv', 'Обращения D7')}
+                    <div class="flex flex-col gap-1">${CATS.d7inv.map(renderCb).join('')}</div>
+                </div>
+            </div>`;
+
+            // ROW 3: Scales
+            const scalesMaj = ['sc_maj', 'sc_hmaj', 'sc_mmaj'].map(k => ALL_ITEMS[k]);
+            const scalesMin = ['sc_min', 'sc_hmin', 'sc_mmin'].map(k => ALL_ITEMS[k]);
+            const scalesOther = ['sc_2hmaj', 'sc_2hmin'].map(k => ALL_ITEMS[k]);
+
+            html += `
+            <div class="bg-slate-800/30 p-2 rounded-xl border border-slate-700/50 flex flex-col xl:flex-row gap-2">
+                <div class="flex-[1.5]">
+                    ${createHeader('scale_basic', 'Базовые гаммы')}
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <div class="flex flex-col gap-1">${scalesMaj.map(renderCb).join('')}</div>
+                        <div class="flex flex-col gap-1">${scalesMin.map(renderCb).join('')}</div>
+                        <div class="flex flex-col gap-1">${scalesOther.map(renderCb).join('')}</div>
+                    </div>
+                </div>
+                <div class="w-px bg-slate-700/50 my-2 hidden xl:block"></div>
+                <div class="flex-1">
+                    ${createHeader('scale_modes', 'Народные лады и Пентатоника')}
+                    <div class="grid grid-cols-2 gap-1.5">
+                        ${CATS.scale_modes.map(renderCb).join('')}
+                    </div>
+                </div>
+            </div>`;
+
+            if(DOM.settingsContent) DOM.settingsContent.innerHTML = html;
+
+            document.querySelectorAll('.group-cb').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    activeKeys = Array.from(document.querySelectorAll('.group-cb:checked')).map(n => n.value);
+                    syncCheckboxes();
+                    updateActiveCount();
+                    saveData();
+                    buildAnswerGrid();
+                });
+            });
+
+            document.querySelectorAll('.cat-master-cb').forEach(cb => {
+                cb.addEventListener('change', (e) => handleCategoryToggle(e.target.dataset.cat, e.target.checked));
+            });
+        }
+
+        function buildAnswerGrid() {
+            let html = '';
+            
+            const renderBtn = (i) => `
+                <button class="ans-btn py-2 px-1.5 rounded-lg text-[11px] sm:text-xs font-semibold text-slate-200 flex flex-col items-center justify-center leading-tight shadow-sm w-full h-full" data-key="${i.key}" onclick="handleAnswer('${i.key}', this)">
+                    <span class="text-center">${i.short}</span>
+                    ${i.hint ? `<span class="text-[9px] text-indigo-300/90 mt-0.5 font-bold tracking-wider">${i.hint}</span>` : ''}
+                </button>`;
+
+            const addSection = (title, itemsArr) => {
+                const activeItems = itemsArr.filter(i => activeKeys.includes(i.key));
+                if (activeItems.length === 0) return;
+                
+                html += `
+                <div class="mb-2">
+                    <h4 class="text-[10px] text-slate-400 uppercase mb-1.5 pl-1 tracking-widest font-bold border-b border-slate-700/40 pb-1">${title}</h4>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5">
+                        ${activeItems.map(renderBtn).join('')}
+                    </div>
+                </div>`;
+            };
+
+            const addStructuredSection = (title, colsArray) => {
+                const hasActive = colsArray.some(col => col.some(k => activeKeys.includes(k)));
+                if (!hasActive) return;
+
+                html += `
+                <div class="mb-2">
+                    <h4 class="text-[10px] text-slate-400 uppercase mb-1.5 pl-1 tracking-widest font-bold border-b border-slate-700/40 pb-1">${title}</h4>
+                    <div class="grid grid-cols-3 gap-2">
+                        ${colsArray.map(col => `
+                            <div class="flex flex-col gap-1.5">
+                                ${col.filter(k => activeKeys.includes(k)).map(k => renderBtn(ALL_ITEMS[k])).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            };
+
+            // Two-column unified intervals view for main screen
+            const activeSimple = CATS.simple.filter(i => activeKeys.includes(i.key));
+            const activeChar = CATS.char.filter(i => activeKeys.includes(i.key));
+            
+            if (activeSimple.length > 0 || activeChar.length > 0) {
+                html += `<div class="flex flex-col md:flex-row gap-2 md:gap-4 mb-2">`;
+                
+                if (activeSimple.length > 0) {
+                    html += `<div class="flex-1">
+                        <h4 class="text-[10px] text-slate-400 uppercase mb-1.5 pl-1 tracking-widest font-bold border-b border-slate-700/40 pb-1">Простые интервалы</h4>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            ${activeSimple.map(renderBtn).join('')}
+                        </div>
+                    </div>`;
+                }
+
+                if (activeChar.length > 0) {
+                    html += `<div class="flex-1">
+                        <h4 class="text-[10px] text-slate-400 uppercase mb-1.5 pl-1 tracking-widest font-bold border-b border-slate-700/40 pb-1">Характерные интервалы</h4>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            ${activeChar.map(renderBtn).join('')}
+                        </div>
+                    </div>`;
+                }
+                
+                html += `</div>`;
+            }
+
+            addStructuredSection('Трезвучия', [
+                ['triad_maj', 'triad_maj6', 'triad_maj64'],
+                ['triad_min', 'triad_min6', 'triad_min64'],
+                ['triad_aug', 'triad_dim']
+            ]);
+
+            addSection('Септаккорды', CATS.seventh);
+            addSection('Обращения D7', CATS.d7inv);
+            
+            addStructuredSection('Базовые Гаммы', [
+                ['sc_maj', 'sc_hmaj', 'sc_mmaj'],
+                ['sc_min', 'sc_hmin', 'sc_mmin'],
+                ['sc_2hmaj', 'sc_2hmin']
+            ]);
+            
+            addSection('Народные Лады и Пентатоника', CATS.scale_modes);
+
+            if (!html) html = '<div class="text-center text-slate-500 text-sm font-medium py-10">В настройках (⚙️) ничего не выбрано.</div>';
+            
+            if(DOM.answersWrap) DOM.answersWrap.innerHTML = html;
+        }
+
+        function updateActiveCount() {
+            if(DOM.activeCount) DOM.activeCount.textContent = activeKeys.length;
+        }
+
+        function updateStatsUI() {
+            let totalAnswers = 0;
+            let correctAnswers = 0;
+            let html = '';
+
+            CATEGORIES_INFO.forEach(cat => {
+                const catKeys = activeKeys.filter(k => ALL_ITEMS[k] && ALL_ITEMS[k].cat === cat.id);
+                if (catKeys.length === 0) return;
+                
+                html += `<div class="mt-3 mb-1.5 pl-1 text-[10px] uppercase font-bold text-slate-400 tracking-widest border-b border-slate-700/50 pb-1">${cat.label}</div>`;
+                
                 catKeys.forEach(key => {
-                    const st = chordStats[key];
-                    if (st.total === 0) return;
-                    const acc = Math.round((st.correct / st.total) * 100);
-                    const item = document.createElement('div');
-                    item.className = 'bg-slate-900 p-2 rounded-lg border border-slate-800 flex justify-between items-center text-xs';
-                    item.innerHTML = `
-                        <span class="text-slate-300 truncate pr-2 font-medium">${ALL_CHORDS[key].name || ALL_CHORDS[key].rawShort}</span>
-                        <span class="font-bold text-indigo-300 whitespace-nowrap">${st.correct}/${st.total} (${acc}%)</span>
-                    `;
-                    itemsGrid.appendChild(item);
+                    const s = stats[key] || { correct: 0, total: 0 };
+                    totalAnswers += s.total;
+                    correctAnswers += s.correct;
+                    const perc = s.total > 0 ? Math.round((s.correct / s.total) * 100) : 0;
+                    const item = ALL_ITEMS[key];
+                    
+                    html += `
+                    <div class="flex justify-between items-center text-xs py-1.5 px-2 hover:bg-slate-800/50 rounded transition-colors border-b border-slate-700/30">
+                        <span class="text-slate-300 truncate pr-2 font-medium">${item.name} <span class="text-[10px] text-slate-500 ml-1">(${item.short})</span></span>
+                        <span class="${perc > 80 ? 'text-emerald-400' : perc > 50 ? 'text-amber-400' : 'text-rose-400'} font-bold">
+                            ${perc}% <span class="text-[10px] text-slate-500 font-medium ml-1">(${s.correct}/${s.total})</span>
+                        </span>
+                    </div>`;
                 });
+            });
 
-                categorySection.appendChild(itemsGrid);
-                detailedStatsList.appendChild(categorySection);
+            const overallPerc = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0;
+            if(DOM.overallAccuracy) {
+                DOM.overallAccuracy.textContent = `Общая точность: ${overallPerc}%`;
+                DOM.overallAccuracy.className = `text-center text-sm font-extrabold mb-3 py-2.5 rounded-xl shadow-inner border tracking-wide ` + 
+                    (overallPerc > 80 ? 'bg-emerald-950/50 text-emerald-300 border-emerald-800/80' : 
+                     overallPerc > 50 ? 'bg-amber-950/50 text-amber-300 border-amber-800/80' : 
+                     'bg-slate-800 text-white border-slate-600');
             }
+            
+            if(DOM.detailedStats) DOM.detailedStats.innerHTML = html || '<div class="text-center text-slate-500 text-xs py-6">Нет данных для отображения.</div>';
+        }
 
-            if (detailedStatsList.children.length === 0) {
-                detailedStatsList.innerHTML = '<div class="text-center text-slate-500 py-6 italic">Статистика пока пуста. Начните отвечать!</div>';
+        function toggleVerbalMode() {
+            if(!DOM.verbalCb) return;
+            isVerbalMode = DOM.verbalCb.checked;
+            if (isVerbalMode) {
+                DOM.answersWrap.classList.add('hidden');
+                document.getElementById('actionControls').classList.add('hidden');
+                DOM.verbalWrap.classList.remove('hidden');
+                DOM.verbalWrap.classList.add('flex');
+            } else {
+                DOM.answersWrap.classList.remove('hidden');
+                document.getElementById('actionControls').classList.remove('hidden');
+                DOM.verbalWrap.classList.add('hidden');
+                DOM.verbalWrap.classList.remove('flex');
+            }
+            saveData();
+        }
+
+        async function saveData() {
+            const data = {
+                activeKeys,
+                stats,
+                tempo: DOM.tempo ? DOM.tempo.value : 'normal',
+                playback: DOM.playback ? DOM.playback.value : 'arpeggio',
+                timbre: DOM.timbre ? DOM.timbre.value : 'piano',
+                root: DOM.root ? DOM.root.value : 'random',
+                verbal: DOM.verbalCb ? DOM.verbalCb.checked : false
+            };
+            await setSavedData('trainerState_v5', data);
+        }
+
+        async function loadData() {
+            const data = await getSavedData('trainerState_v5');
+            if (data) {
+                if (data.activeKeys && data.activeKeys.length > 0) activeKeys = data.activeKeys;
+                if (data.stats) stats = data.stats;
+                if (data.tempo && DOM.tempo) DOM.tempo.value = data.tempo;
+                if (data.playback && DOM.playback) DOM.playback.value = data.playback;
+                if (data.timbre && DOM.timbre) DOM.timbre.value = data.timbre;
+                if (data.root && DOM.root) DOM.root.value = data.root;
+                if (typeof data.verbal !== 'undefined' && DOM.verbalCb) DOM.verbalCb.checked = data.verbal;
             }
         }
 
-        playBtn.onclick = () => {
-            stopActiveNotes();
-            playbackTimer = setTimeout(() => {
-                prepareNewQuestion();
-                playCurrentChord();
-            }, 60);
-        };
-
-        repeatBtn.onclick = () => {
-            stopActiveNotes();
-            playbackTimer = setTimeout(() => {
-                playCurrentChord();
-            }, 60);
-        };
-
-        resetStatsBtn.onclick = () => {
-            stats.correct = 0;
-            stats.total = 0;
-            for (const key in chordStats) {
-                chordStats[key] = { correct: 0, total: 0 };
+        async function init() {
+            await loadData();
+            
+            buildSettings();
+            buildQuickToggles();
+            syncCheckboxes();
+            buildAnswerGrid();
+            updateActiveCount();
+            toggleVerbalMode();
+            
+            if(DOM.btnNew) DOM.btnNew.onclick = nextItem;
+            if(DOM.btnVerbalNew) DOM.btnVerbalNew.onclick = nextItem;
+            if(DOM.btnRepeat) DOM.btnRepeat.onclick = () => playCurrentItem();
+            if(DOM.btnVerbalRepeat) DOM.btnVerbalRepeat.onclick = () => playCurrentItem();
+            if(DOM.btnShowAnswer) DOM.btnShowAnswer.onclick = showVerbalAnswer;
+            
+            if(DOM.btnSettings) DOM.btnSettings.onclick = () => {
+                DOM.settingsModal.classList.remove('hidden');
+                DOM.settingsModal.classList.add('flex');
+            };
+            if(DOM.btnCloseSettings) DOM.btnCloseSettings.onclick = () => {
+                DOM.settingsModal.classList.add('hidden');
+                DOM.settingsModal.classList.remove('flex');
+            };
+            
+            if(DOM.btnStats) {
+                DOM.btnStats.onclick = () => {
+                    updateStatsUI();
+                    DOM.statsModal.classList.remove('hidden');
+                    DOM.statsModal.classList.add('flex');
+                };
             }
-            updateDetailedStatsDisplay();
-            prepareNewQuestion();
-            saveUserData();
-        };
-
-        document.addEventListener('keydown', (e) => {
-            if (!chordSettingsModal.classList.contains('hidden') || !detailedStatsBox.classList.contains('hidden')) return;
-            if (e.code === 'Space') {
-                e.preventDefault();
-                stopActiveNotes();
-                playbackTimer = setTimeout(() => {
-                    playCurrentChord();
-                }, 60);
+            if(DOM.btnCloseStats) {
+                DOM.btnCloseStats.onclick = () => {
+                    DOM.statsModal.classList.add('hidden');
+                    DOM.statsModal.classList.remove('flex');
+                };
             }
-        });
 
-        window.onload = async () => {
-            initChordCheckboxes();
-            updateStatsDisplay();
-            renderAnswerButtons();
-            chordSettingsModal.classList.add('hidden');
-            detailedStatsBox.classList.add('hidden');
-            await initFirebase();
-            prepareNewQuestion();
-        };
+            // Закрытие модальных окон при клике по фону
+            if(DOM.settingsModal) DOM.settingsModal.onclick = (e) => {
+                if(e.target === DOM.settingsModal) DOM.btnCloseSettings.click();
+            };
+            if(DOM.statsModal) DOM.statsModal.onclick = (e) => {
+                if(e.target === DOM.statsModal) DOM.btnCloseStats.click();
+            };
+            
+            if(DOM.btnResetStats) {
+                DOM.btnResetStats.onclick = () => {
+                    if(confirm('Сбросить всю статистику?')) {
+                        stats = {};
+                        saveData();
+                        updateStatsUI();
+                    }
+                };
+            }
+            
+            if(DOM.verbalCb) DOM.verbalCb.onchange = toggleVerbalMode;
+            if(DOM.tempo) DOM.tempo.onchange = saveData;
+            if(DOM.playback) DOM.playback.onchange = saveData;
+            if(DOM.timbre) DOM.timbre.onchange = saveData;
+            if(DOM.root) DOM.root.onchange = saveData;
+        }
+
+        window.onload = init;
     </script>
 </body>
 </html>
