@@ -90,7 +90,7 @@
                 <select id="directionSelect" class="bg-slate-900 border border-slate-700 rounded-md px-1.5 py-1 text-[11px] font-medium text-slate-200 focus:outline-none focus:border-indigo-500 shadow-sm">
                     <option value="up" selected>Снизу вверх</option>
                     <option value="down">Сверху вниз</option>
-                    <option value="random">Вразброс</option>
+                    <option value="random">Случайно</option>
                 </select>
                 <select id="timbreSelect" class="bg-slate-900 border border-slate-700 rounded-md px-1.5 py-1 text-[11px] font-medium text-slate-200 focus:outline-none focus:border-indigo-500 shadow-sm">
                     <option value="epiano">Электропиано</option>
@@ -574,13 +574,20 @@
                 };
             });
             
-            const dir = DOM.direction ? DOM.direction.value : 'up';
+            let dir = DOM.direction ? DOM.direction.value : 'up';
+            
+            // Принудительно играем мелодический мажор и минор только снизу вверх, 
+            // так как их альтерированные ступени имеют смысл при восходящем движении
+            if (currentItemKey === 'sc_mmaj' || currentItemKey === 'sc_mmin') {
+                dir = 'up';
+            }
+
             if (dir === 'down') {
                 notesData.reverse();
             } else if (dir === 'random') {
-                for (let i = notesData.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [notesData[i], notesData[j]] = [notesData[j], notesData[i]];
+                // Выбираем случайное направление: 50% снизу вверх, 50% сверху вниз
+                if (Math.random() > 0.5) {
+                    notesData.reverse();
                 }
             }
 
