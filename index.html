@@ -18,7 +18,7 @@
             user-select: none;
         }
         
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.4); border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.8); }
@@ -79,17 +79,22 @@
                 <div class="h-3 w-px bg-slate-600"></div>
                 <select id="tempoSelect" class="bg-slate-900 border border-slate-700 rounded-md px-1.5 py-1 text-[11px] font-medium text-slate-200 focus:outline-none focus:border-indigo-500 shadow-sm">
                     <option value="very_slow">Очень медл.</option>
-                    <option value="slow">Медленно</option>
-                    <option value="normal" selected>Умеренно</option>
+                    <option value="slow" selected>Медленно</option>
+                    <option value="normal">Умеренно</option>
                     <option value="fast">Быстро</option>
                 </select>
                 <select id="playbackStyleSelect" class="bg-slate-900 border border-slate-700 rounded-md px-1.5 py-1 text-[11px] font-medium text-slate-200 focus:outline-none focus:border-indigo-500 shadow-sm">
                     <option value="arpeggio" selected>Арпеджио</option>
                     <option value="harmonic">Гармонически</option>
                 </select>
+                <select id="directionSelect" class="bg-slate-900 border border-slate-700 rounded-md px-1.5 py-1 text-[11px] font-medium text-slate-200 focus:outline-none focus:border-indigo-500 shadow-sm">
+                    <option value="up" selected>Снизу вверх</option>
+                    <option value="down">Сверху вниз</option>
+                    <option value="random">Вразброс</option>
+                </select>
                 <select id="timbreSelect" class="bg-slate-900 border border-slate-700 rounded-md px-1.5 py-1 text-[11px] font-medium text-slate-200 focus:outline-none focus:border-indigo-500 shadow-sm">
-                    <option value="piano" selected>Пианино</option>
                     <option value="epiano">Электропиано</option>
+                    <option value="piano" selected>Пианино</option>
                     <option value="organ">Орган</option>
                     <option value="strings">Струнные</option>
                     <option value="basic">Синтезатор</option>
@@ -99,6 +104,10 @@
                     <option value="C">C</option><option value="D">D</option><option value="E">E</option>
                     <option value="F">F</option><option value="G">G</option><option value="A">A</option><option value="B">B</option>
                 </select>
+                <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-700 rounded-md px-1.5 py-1 shadow-sm" title="Громкость">
+                    <span class="text-[11px] select-none">🔊</span>
+                    <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.5" class="w-16 sm:w-20 accent-indigo-500 cursor-pointer">
+                </div>
             </div>
 
             <div class="flex items-center gap-1.5">
@@ -197,50 +206,55 @@
             'm7': { cat: 'simple', name: 'Малая септима', short: 'м.7', int: [0, 10] },
             'M7': { cat: 'simple', name: 'Большая септима', short: 'б.7', int: [0, 11] },
 
-            // Характерные интервалы
-            'aug2':   { cat: 'char', name: 'Увеличенная секунда', short: 'ув.2', int: [0, 3], res: [-1, 4], resText: 'в ч.4 (гарм. минор)' },
-            'dim7':   { cat: 'char', name: 'Уменьшенная септима', short: 'ум.7', int: [0, 9], res: [1, 8], resText: 'в ч.5 (г.маж/г.мин)' },
+            // Характерные интервалы (без подсказок в названии)
+            'aug2':   { cat: 'char', name: 'Увеличенная секунда', short: 'ув.2', int: [0, 3], res: [-1, 4] },
+            'dim7':   { cat: 'char', name: 'Уменьшенная септима', short: 'ум.7', int: [0, 9], res: [1, 8] },
             
-            'dim4':   { cat: 'char', name: 'Уменьшенная кварта', short: 'ум.4', int: [0, 4], res: [1, 4], resText: 'в м.3 (гарм. минор)' },
-            'aug5':   { cat: 'char', name: 'Увеличенная квинта', short: 'ув.5', int: [0, 8], res: [-1, 8], resText: 'в б.6 (гарм. мажор)' },
+            'dim4':   { cat: 'char', name: 'Уменьшенная кварта', short: 'ум.4', int: [0, 4], res: [1, 4] },
+            'aug5':   { cat: 'char', name: 'Увеличенная квинта', short: 'ув.5', int: [0, 8], res: [-1, 8] },
             
-            'aug4_n': { cat: 'char', name: 'Тритон (ув.4 нат.)', short: 'ув.4 (н)', int: [0, 6], res: [-1, 7], resText: 'в м.6 (нат. минор)' },
-            'dim5_n': { cat: 'char', name: 'Тритон (ум.5 нат.)', short: 'ум.5 (н)', int: [0, 6], res: [1, 5], resText: 'в б.3 (нат. мажор)' },
+            'aug4_n': { cat: 'char', name: 'Тритон (ув.4 нат.)', short: 'ув.4 (н)', int: [0, 6], res: [-1, 7] },
+            'dim5_n': { cat: 'char', name: 'Тритон (ум.5 нат.)', short: 'ум.5 (н)', int: [0, 6], res: [1, 5] },
             
-            'aug4_h': { cat: 'char', name: 'Тритон (ув.4 гарм.)', short: 'ув.4 (г)', int: [0, 6], res: [-2, 7], resText: 'в б.6 (гарм. минор)' },
-            'dim5_h': { cat: 'char', name: 'Тритон (ум.5 гарм.)', short: 'ум.5 (г)', int: [0, 6], res: [1, 4], resText: 'в м.3 (гарм. мажор)' },
+            'aug4_h': { cat: 'char', name: 'Тритон (ув.4 гарм.)', short: 'ув.4 (г)', int: [0, 6], res: [-2, 7] },
+            'dim5_h': { cat: 'char', name: 'Тритон (ум.5 гарм.)', short: 'ум.5 (г)', int: [0, 6], res: [1, 4] },
 
-            // Трезвучия
-            'triad_maj':   { cat: 'triad', name: 'Мажорное (Б5/3)', short: 'Б5/3', int: [0, 4, 7] },
-            'triad_maj6':  { cat: 'triad', name: 'Мажорный секстаккорд', short: 'Б6', int: [0, 3, 8] },
-            'triad_maj64': { cat: 'triad', name: 'Маж. квартсекстаккорд', short: 'Б6/4', int: [0, 5, 9] },
-            'triad_min':   { cat: 'triad', name: 'Минорное (М5/3)', short: 'М5/3', int: [0, 3, 7] },
-            'triad_min6':  { cat: 'triad', name: 'Минорный секстаккорд', short: 'М6', int: [0, 4, 9] },
-            'triad_min64': { cat: 'triad', name: 'Мин. квартсекстаккорд', short: 'М6/4', int: [0, 5, 8] },
-            'triad_aug':   { cat: 'triad', name: 'Увеличенное', short: 'Ув5/3', int: [0, 4, 8] },
-            'triad_dim':   { cat: 'triad', name: 'Уменьшенное', short: 'Ум5/3', int: [0, 3, 6] },
+            // Трезвучия (Мажорные, Минорные, Остальные)
+            'triad_maj':   { cat: 'triad', name: 'Мажорное (Б5/3)', short: 'Б5/3', int: [0, 4, 7], triadGroup: 'maj' },
+            'triad_maj6':  { cat: 'triad', name: 'Мажорный секстаккорд', short: 'Б6', int: [0, 3, 8], triadGroup: 'maj' },
+            'triad_maj64': { cat: 'triad', name: 'Маж. квартсекстаккорд', short: 'Б6/4', int: [0, 5, 9], triadGroup: 'maj' },
+            
+            'triad_min':   { cat: 'triad', name: 'Минорное (М5/3)', short: 'М5/3', int: [0, 3, 7], triadGroup: 'min' },
+            'triad_min6':  { cat: 'triad', name: 'Минорный секстаккорд', short: 'М6', int: [0, 4, 9], triadGroup: 'min' },
+            'triad_min64': { cat: 'triad', name: 'Мин. квартсекстаккорд', short: 'М6/4', int: [0, 5, 8], triadGroup: 'min' },
+            
+            'triad_aug':   { cat: 'triad', name: 'Увеличенное', short: 'Ув5/3', int: [0, 4, 8], triadGroup: 'other' },
+            'triad_dim':   { cat: 'triad', name: 'Уменьшенное', short: 'Ум5/3', int: [0, 3, 6], triadGroup: 'other' },
 
-            // Септаккорды
-            '7_maj':  { cat: 'seventh', name: 'Большой мажорный', short: 'ББ7', int: [0, 4, 7, 11] },
-            '7_dom':  { cat: 'seventh', name: 'Доминантсептаккорд', short: 'БМ7', int: [0, 4, 7, 10], hint: 'D7' },
-            '7_min':  { cat: 'seventh', name: 'Малый минорный', short: 'ММ7', int: [0, 3, 7, 10] },
-            '7_m7b5': { cat: 'seventh', name: 'Полуменьшенный', short: 'МУм7', int: [0, 3, 6, 10] },
-            '7_dim':  { cat: 'seventh', name: 'Уменьшенный', short: 'УмУм7', int: [0, 3, 6, 9] },
+            // Септаккорды (в академическом формате)
+            '7_bb':  { cat: 'seventh', name: 'Большой мажорный', short: 'ББ7', int: [0, 4, 7, 11] },
+            '7_mb':  { cat: 'seventh', name: 'Доминантсептаккорд', short: 'МБ7', int: [0, 4, 7, 10] },
+            '7_bm':  { cat: 'seventh', name: 'Большой минорный', short: 'БМ7', int: [0, 3, 7, 11] },
+            '7_mm':  { cat: 'seventh', name: 'Малый минорный', short: 'ММ7', int: [0, 3, 7, 10] },
+            '7_m5':  { cat: 'seventh', name: 'Полуменьшенный', short: 'МУм7', int: [0, 3, 6, 10] },
+            '7_dim': { cat: 'seventh', name: 'Уменьшенный', short: 'УмУм7', int: [0, 3, 6, 9] },
 
             // Обращения D7
             'd7_65': { cat: 'd7inv', name: 'Квинтсекстаккорд', short: 'D6/5', int: [0, 3, 6, 8], hint: 'на VII' },
             'd7_43': { cat: 'd7inv', name: 'Терцквартаккорд', short: 'D4/3', int: [0, 3, 5, 9], hint: 'на II' },
             'd7_2':  { cat: 'd7inv', name: 'Секундаккорд', short: 'D2', int: [0, 2, 6, 9], hint: 'на IV' },
 
-            // Базовые Гаммы
-            'sc_maj':  { cat: 'scale_basic', name: 'Натуральный мажор', short: 'Нат. Мажор', int: [0,2,4,5,7,9,11,12] },
-            'sc_min':  { cat: 'scale_basic', name: 'Натуральный минор', short: 'Нат. Минор', int: [0,2,3,5,7,8,10,12] },
-            'sc_hmaj': { cat: 'scale_basic', name: 'Гармонический мажор', short: 'Гарм. Маж.', int: [0,2,4,5,7,8,11,12], hint: 'VI♭' },
-            'sc_hmin': { cat: 'scale_basic', name: 'Гармонический минор', short: 'Гарм. Мин.', int: [0,2,3,5,7,8,11,12], hint: 'VII♯' },
-            'sc_mmaj': { cat: 'scale_basic', name: 'Мелодический мажор', short: 'Мел. Маж.', int: [0,2,4,5,7,8,10,12], hint: 'VI♭, VII♭' },
-            'sc_mmin': { cat: 'scale_basic', name: 'Мелодический минор', short: 'Мел. Мин.', int: [0,2,3,5,7,9,11,12], hint: 'VI♯, VII♯' },
-            'sc_2hmaj':{ cat: 'scale_basic', name: 'Дважды гарм. мажор', short: 'Дв.гарм.Маж', int: [0,1,4,5,7,8,11,12], hint: 'II♭, VI♭' },
-            'sc_2hmin':{ cat: 'scale_basic', name: 'Дважды гарм. минор', short: 'Дв.гарм.Мин', int: [0,2,3,6,7,8,11,12], hint: 'IV♯, VII♯' },
+            // Базовые Гаммы (Мажорные, Минорные, Дважды гармонические)
+            'sc_maj':  { cat: 'scale_basic', name: 'Натуральный мажор', short: 'Нат. Мажор', int: [0,2,4,5,7,9,11,12], scaleGroup: 'maj' },
+            'sc_hmaj': { cat: 'scale_basic', name: 'Гармонический мажор', short: 'Гарм. Маж.', int: [0,2,4,5,7,8,11,12], hint: 'VI♭', scaleGroup: 'maj' },
+            'sc_mmaj': { cat: 'scale_basic', name: 'Мелодический мажор', short: 'Мел. Маж.', int: [0,2,4,5,7,8,10,12], hint: 'VI♭, VII♭', scaleGroup: 'maj' },
+            
+            'sc_min':  { cat: 'scale_basic', name: 'Натуральный минор', short: 'Нат. Минор', int: [0,2,3,5,7,8,10,12], scaleGroup: 'min' },
+            'sc_hmin': { cat: 'scale_basic', name: 'Гармонический минор', short: 'Гарм. Мин.', int: [0,2,3,5,7,8,11,12], hint: 'VII♯', scaleGroup: 'min' },
+            'sc_mmin': { cat: 'scale_basic', name: 'Мелодический минор', short: 'Мел. Мин.', int: [0,2,3,5,7,9,11,12], hint: 'VI♯, VII♯', scaleGroup: 'min' },
+            
+            'sc_2hmaj':{ cat: 'scale_basic', name: 'Дважды гарм. мажор', short: 'Дв.гарм.Маж', int: [0,1,4,5,7,8,11,12], hint: 'II♭, VI♭', scaleGroup: 'other' },
+            'sc_2hmin':{ cat: 'scale_basic', name: 'Дважды гарм. минор', short: 'Дв.гарм.Мин', int: [0,2,3,6,7,8,11,12], hint: 'IV♯, VII♯', scaleGroup: 'other' },
 
             // Народные лады и Пентатоника
             'sc_dor':  { cat: 'scale_modes', name: 'Дорийский', short: 'Дорийский', int: [0,2,3,5,7,9,10,12], hint: 'VI♯' },
@@ -276,7 +290,7 @@
 
         const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-        let activeKeys = ['M3', 'm3', 'P4', 'P5', 'triad_maj', 'triad_min', '7_dom']; 
+        let activeKeys = Object.keys(ALL_ITEMS); 
         let currentItemKey = null;
         let currentBaseNote = 60;
         let currentBaseName = 'C';
@@ -287,8 +301,10 @@
             get verbalCb() { return document.getElementById('verbalModeCb'); },
             get tempo() { return document.getElementById('tempoSelect'); },
             get playback() { return document.getElementById('playbackStyleSelect'); },
+            get direction() { return document.getElementById('directionSelect'); },
             get timbre() { return document.getElementById('timbreSelect'); },
             get root() { return document.getElementById('rootSelect'); },
+            get volumeSlider() { return document.getElementById('volumeSlider'); },
             get activeCount() { return document.getElementById('activeCount'); },
             get btnSettings() { return document.getElementById('btnSettings'); },
             get btnStats() { return document.getElementById('btnStats'); },
@@ -315,10 +331,11 @@
         const STORE_NAME = 'trainerData';
         async function openDB() {
             return new Promise((resolve, reject) => {
-                const req = indexedDB.open(DB_NAME, 2);
-                req.onupgradeneeded = e => { 
-                    if (!e.target.result.objectStoreNames.contains(STORE_NAME)) {
-                        e.target.result.createObjectStore(STORE_NAME); 
+                const req = indexedDB.open(DB_NAME, 6);
+                req.onupgradeneeded = e => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME);
                     }
                 };
                 req.onsuccess = e => resolve(e.target.result);
@@ -357,7 +374,6 @@
             const ctx = getAudioContext();
             if (ctx.state === 'suspended') ctx.resume();
             
-            // Создаем короткий звук нулевой громкости (тишину)
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
             gain.gain.value = 0; 
@@ -367,7 +383,6 @@
             if (osc.start) osc.start(ctx.currentTime);
             if (osc.stop) osc.stop(ctx.currentTime + 0.01);
             
-            // Как только звук разблокирован, удаляем обработчики, чтобы не перегружать память
             ['touchstart', 'touchend', 'click'].forEach(evt => {
                 document.body.removeEventListener(evt, unlockAudio);
             });
@@ -378,180 +393,226 @@
                 try { 
                     n.gain.gain.cancelScheduledValues(audioCtx.currentTime);
                     n.gain.gain.setValueAtTime(n.gain.gain.value, audioCtx.currentTime);
-                    n.gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                    n.gain.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 0.03);
                     if (n.oscs) {
-                        n.oscs.forEach(osc => osc.stop(audioCtx.currentTime + 0.06));
-                    } else if (n.osc) {
-                        n.osc.stop(audioCtx.currentTime + 0.06); 
+                        n.oscs.forEach(osc => {
+                            try { osc.stop(audioCtx.currentTime + 0.04); } catch(e){}
+                        });
                     }
                 } catch (e) {}
             });
             activeNodes = [];
         }
 
-        function playFrequencies(freqs, durationMs, type = 'arpeggio', isScale = false) {
+        function playFrequencies(freqs, durationMs, type = 'arpeggio', isScale = false, onComplete = null, speedMultiplier = 1.0, notesMeta = null) {
             stopAudio();
             const ctx = getAudioContext();
             
-            const tempoMultiplier = DOM.tempo.value === 'very_slow' ? 1.5 : 
+            const tempoMultiplier = (DOM.tempo.value === 'very_slow' ? 1.5 : 
                                     DOM.tempo.value === 'slow' ? 1.2 : 
-                                    DOM.tempo.value === 'fast' ? 0.6 : 1.0;
+                                    DOM.tempo.value === 'fast' ? 0.6 : 1.0) * speedMultiplier;
             const timbre = DOM.timbre ? DOM.timbre.value : 'piano';
+            const userVol = DOM.volumeSlider ? parseFloat(DOM.volumeSlider.value) : 0.5;
             
-            const delaySec = (durationMs / 1000) * tempoMultiplier;
-            const sustainDuration = 2.5; 
-            const fadeOutDuration = 1.0;
+            const delaySec = Math.max(0.04, (durationMs / 1000) * tempoMultiplier);
+            // Уменьшено общее затухание звука для аккордов
+            const sustainDuration = isScale ? 0.0 : 1.0; 
+            const fadeOutDuration = isScale ? 0.05 : 0.4; 
             
+            let maxStopTime = ctx.currentTime + 0.1;
+
             freqs.forEach((freq, i) => {
                 let startTime, stopTime, fadeOutStart;
                 
+                const meta = notesMeta ? notesMeta[i] : { heightIndex: i, functionalInterval: 0 };
+                const balanceFactor = Math.max(0.5, 1.0 - (meta.heightIndex * 0.09));
+
+                let volBoost = 1.0;
+                let brightBoost = 1.0;
+                
+                if (meta.functionalInterval === 4) { // Б.3
+                    volBoost = 1.35; brightBoost = 1.45;
+                } else if (meta.functionalInterval === 3) { // М.3
+                    volBoost = 1.20; brightBoost = 1.20;
+                } else if (meta.functionalInterval === 5) { // Ч.4
+                    volBoost = 1.25; brightBoost = 1.30;
+                }
+
                 if (isScale) {
-                    // Гаммы играются чистым легато (с небольшим наложением для бесшовности)
-                    startTime = ctx.currentTime + i * delaySec;
-                    stopTime = startTime + delaySec + 0.15; // Наложение 150мс на следующую ноту
+                    startTime = ctx.currentTime + i * delaySec; 
+                    stopTime = startTime + delaySec * 0.95; // Без наслоения звуков (убрано затухание)
+                    fadeOutStart = stopTime - 0.02;
                 } else if (type === 'arpeggio') {
-                    // Арпеджио: набираются последовательно, звучат вместе до конца
                     startTime = ctx.currentTime + i * delaySec;
                     const lastNoteStart = ctx.currentTime + (freqs.length - 1) * delaySec;
                     fadeOutStart = lastNoteStart + sustainDuration;
                     stopTime = fadeOutStart + fadeOutDuration;
                 } else {
-                    // Гармонически: все одновременно
                     startTime = ctx.currentTime;
                     fadeOutStart = ctx.currentTime + sustainDuration;
                     stopTime = fadeOutStart + fadeOutDuration;
                 }
                 
+                if (stopTime > maxStopTime) maxStopTime = stopTime;
+
                 const masterGain = ctx.createGain();
-                const maxVol = 0.4 / Math.sqrt(freqs.length); // Защита от клиппинга
+                const maxVol = Math.max(0.001, (userVol * 0.15 * balanceFactor * volBoost) / Math.max(1, freqs.length * 0.35)); 
                 
                 if (isScale) {
-                    masterGain.gain.setValueAtTime(0, startTime);
-                    masterGain.gain.linearRampToValueAtTime(maxVol, startTime + 0.02);
-                    masterGain.gain.setValueAtTime(maxVol, stopTime - 0.15);
-                    masterGain.gain.linearRampToValueAtTime(0, stopTime);
+                    masterGain.gain.setValueAtTime(0.001, startTime);
+                    masterGain.gain.linearRampToValueAtTime(maxVol, startTime + 0.015);
+                    masterGain.gain.setValueAtTime(maxVol, fadeOutStart);
+                    masterGain.gain.linearRampToValueAtTime(0.001, stopTime);
+                } else if (type === 'arpeggio') {
+                    masterGain.gain.setValueAtTime(0.001, startTime);
+                    masterGain.gain.linearRampToValueAtTime(maxVol, startTime + 0.025);
+                    masterGain.gain.setValueAtTime(maxVol, fadeOutStart);
+                    masterGain.gain.exponentialRampToValueAtTime(Math.max(0.001, maxVol * 0.1), stopTime);
                 } else {
-                    masterGain.gain.setValueAtTime(0, startTime);
-                    masterGain.gain.linearRampToValueAtTime(maxVol, startTime + 0.02);
-                    
-                    // Естественное затухание для фортепиано
-                    if (timbre === 'piano' || timbre === 'epiano') {
-                        masterGain.gain.exponentialRampToValueAtTime(maxVol * 0.15, fadeOutStart);
-                    } else {
-                        masterGain.gain.setValueAtTime(maxVol, fadeOutStart);
-                    }
-                    
+                    masterGain.gain.setValueAtTime(0.001, startTime);
+                    masterGain.gain.linearRampToValueAtTime(maxVol, startTime + 0.025);
+                    masterGain.gain.exponentialRampToValueAtTime(Math.max(0.001, maxVol * 0.3), fadeOutStart);
                     masterGain.gain.exponentialRampToValueAtTime(0.001, stopTime);
                 }
                 
                 masterGain.connect(ctx.destination);
-                
                 let nodesToStop = [];
                 
-                // Синтез различных тембров
-                if (timbre === 'piano') {
+                if (timbre === 'epiano') {
+                    const carrier = ctx.createOscillator(); carrier.type = 'sine'; carrier.frequency.value = freq;
+                    const modulator = ctx.createOscillator(); modulator.type = 'sine'; modulator.frequency.value = freq * 2.0; 
+                    const modGain = ctx.createGain();
+                    modulator.connect(modGain); modGain.connect(carrier.frequency); carrier.connect(masterGain);
+                    const maxModIndex = freq * 0.6 * brightBoost; 
+                    modGain.gain.setValueAtTime(0, startTime);
+                    modGain.gain.linearRampToValueAtTime(maxModIndex, startTime + 0.015); 
+                    modGain.gain.exponentialRampToValueAtTime(0.001, startTime + 1.2); 
+                    carrier.start(startTime); modulator.start(startTime);
+                    nodesToStop.push(carrier, modulator);
+                } else if (timbre === 'piano') {
                     const osc1 = ctx.createOscillator(); osc1.type = 'triangle'; osc1.frequency.value = freq;
-                    const osc2 = ctx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = freq;
-                    const osc3 = ctx.createOscillator(); osc3.type = 'sine'; osc3.frequency.value = freq * 2; 
+                    const osc2 = ctx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = freq * 2;
+                    const osc3 = ctx.createOscillator(); osc3.type = 'sine'; osc3.frequency.value = freq * 3;
 
                     const filter = ctx.createBiquadFilter();
                     filter.type = 'lowpass';
-                    // Смягчаем пианино, срезая резкие высокие частоты
-                    filter.frequency.setValueAtTime(1800, startTime);
-                    filter.frequency.exponentialRampToValueAtTime(250, stopTime);
+                    filter.Q.value = 0.2;
+                    filter.frequency.setValueAtTime(600 * brightBoost, startTime); 
+                    if (isScale) {
+                        filter.frequency.linearRampToValueAtTime(400, stopTime); // Гаммы не "глохнут" слишком рано
+                    } else {
+                        filter.frequency.exponentialRampToValueAtTime(200, startTime + 0.4);
+                    }
                     
-                    const gain1 = ctx.createGain(); gain1.gain.value = 1.0;
-                    const gain2 = ctx.createGain(); gain2.gain.value = 0.8;
-                    const gain3 = ctx.createGain(); gain3.gain.value = 0.05; // Уменьшаем высокие гармоники
+                    const g1 = ctx.createGain(); g1.gain.value = 1.0;
+                    const g2 = ctx.createGain(); g2.gain.value = 0.12; 
+                    const g3 = ctx.createGain(); g3.gain.value = 0.03;
 
-                    osc1.connect(gain1); osc2.connect(gain2); osc3.connect(gain3);
-                    gain1.connect(filter); gain2.connect(filter); gain3.connect(filter);
+                    osc1.connect(g1); osc2.connect(g2); osc3.connect(g3);
+                    g1.connect(filter); g2.connect(filter); g3.connect(filter);
                     filter.connect(masterGain);
 
-                    osc1.start(startTime); osc2.start(startTime); osc3.start(startTime);
-                    nodesToStop.push(osc1, osc2, osc3);
-                } else if (timbre === 'epiano') {
-                    const osc1 = ctx.createOscillator(); osc1.type = 'sine'; osc1.frequency.value = freq;
-                    const osc2 = ctx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = freq * 2.01;
-                    const osc3 = ctx.createOscillator(); osc3.type = 'sine'; osc3.frequency.value = freq * 3.02;
-
-                    const gain1 = ctx.createGain(); gain1.gain.value = 1.0;
-                    const gain2 = ctx.createGain(); gain2.gain.value = 0.4;
-                    const gain3 = ctx.createGain(); gain3.gain.value = 0.2;
-
-                    osc1.connect(gain1); osc2.connect(gain2); osc3.connect(gain3);
-                    gain1.connect(masterGain); gain2.connect(masterGain); gain3.connect(masterGain);
-                    
                     osc1.start(startTime); osc2.start(startTime); osc3.start(startTime);
                     nodesToStop.push(osc1, osc2, osc3);
                 } else if (timbre === 'organ') {
                     const osc1 = ctx.createOscillator(); osc1.type = 'sine'; osc1.frequency.value = freq;
                     const osc2 = ctx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = freq * 2;
                     const osc3 = ctx.createOscillator(); osc3.type = 'sine'; osc3.frequency.value = freq * 3;
-                    
-                    const gain1 = ctx.createGain(); gain1.gain.value = 0.8;
-                    const gain2 = ctx.createGain(); gain2.gain.value = 0.5;
-                    const gain3 = ctx.createGain(); gain3.gain.value = 0.3;
-
-                    osc1.connect(gain1); osc2.connect(gain2); osc3.connect(gain3);
-                    gain1.connect(masterGain); gain2.connect(masterGain); gain3.connect(masterGain);
-
+                    const g1 = ctx.createGain(); g1.gain.value = 0.7;
+                    const g2 = ctx.createGain(); g2.gain.value = 0.2 * brightBoost;
+                    const g3 = ctx.createGain(); g3.gain.value = 0.1 * brightBoost;
+                    osc1.connect(g1); osc2.connect(g2); osc3.connect(g3);
+                    g1.connect(masterGain); g2.connect(masterGain); g3.connect(masterGain);
                     osc1.start(startTime); osc2.start(startTime); osc3.start(startTime);
                     nodesToStop.push(osc1, osc2, osc3);
                 } else if (timbre === 'strings') {
-                    const osc1 = ctx.createOscillator(); osc1.type = 'sawtooth'; osc1.frequency.value = freq; osc1.detune.value = -8;
-                    const osc2 = ctx.createOscillator(); osc2.type = 'sawtooth'; osc2.frequency.value = freq; osc2.detune.value = 8;
-                    
-                    const filter = ctx.createBiquadFilter();
-                    filter.type = 'lowpass';
-                    filter.frequency.value = 2500;
-
-                    // Мягкая атака для струнных, если это не быстрая гамма
+                    const osc1 = ctx.createOscillator(); osc1.type = 'sawtooth'; osc1.frequency.value = freq; osc1.detune.value = -5;
+                    const osc2 = ctx.createOscillator(); osc2.type = 'sawtooth'; osc2.frequency.value = freq; osc2.detune.value = 5;
+                    const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1200 * brightBoost;
                     if (!isScale) {
                         masterGain.gain.cancelScheduledValues(startTime);
-                        masterGain.gain.setValueAtTime(0, startTime);
-                        masterGain.gain.linearRampToValueAtTime(maxVol, startTime + 0.2); 
+                        masterGain.gain.setValueAtTime(0.001, startTime);
+                        masterGain.gain.linearRampToValueAtTime(maxVol, startTime + 0.3); 
                         masterGain.gain.setValueAtTime(maxVol, fadeOutStart);
-                        masterGain.gain.linearRampToValueAtTime(0, stopTime);
+                        masterGain.gain.linearRampToValueAtTime(0.001, stopTime);
                     }
-
-                    osc1.connect(filter); osc2.connect(filter);
-                    filter.connect(masterGain);
-                    
+                    osc1.connect(filter); osc2.connect(filter); filter.connect(masterGain);
                     osc1.start(startTime); osc2.start(startTime);
                     nodesToStop.push(osc1, osc2);
                 } else {
-                    const osc = ctx.createOscillator();
-                    osc.type = 'triangle';
-                    osc.frequency.value = freq;
-                    osc.connect(masterGain);
-                    osc.start(startTime);
-                    nodesToStop.push(osc);
+                    const osc = ctx.createOscillator(); osc.type = 'triangle'; osc.frequency.value = freq;
+                    osc.connect(masterGain); osc.start(startTime); nodesToStop.push(osc);
                 }
                 
                 nodesToStop.forEach(osc => osc.stop(stopTime));
                 activeNodes.push({ oscs: nodesToStop, gain: masterGain });
             });
+
+            if (onComplete) {
+                const totalDelayMs = (maxStopTime - ctx.currentTime) * 1000;
+                setTimeout(onComplete, Math.max(80, totalDelayMs));
+            }
         }
 
-        function playCurrentItem(isResolution = false) {
+        function playCurrentItem(isResolution = false, onComplete = null) {
             if (!currentItemKey) return;
             const item = ALL_ITEMS[currentItemKey];
-            const intervals = isResolution ? item.res : item.int;
-            if (!intervals) return; 
+            const baseIntervals = isResolution ? item.res : item.int;
+            if (!baseIntervals) {
+                if (onComplete) onComplete();
+                return; 
+            }
             
-            const midiNotes = intervals.map(inter => currentBaseNote + inter);
-            const freqs = midiNotes.map(m => 440 * Math.pow(2, (m - 69) / 12));
+            const rootInterval = baseIntervals[0];
+            let notesData = baseIntervals.map((inter, idx) => {
+                let funcInt = inter - rootInterval;
+                while (funcInt < 0) funcInt += 12;
+                return {
+                    midi: currentBaseNote + inter,
+                    functionalInterval: funcInt % 12,
+                    heightIndex: idx
+                };
+            });
             
-            // Разрешения играются гармонически, а лады всегда арпеджио
-            const isScale = item.cat.startsWith('scale');
-            const playStyle = isResolution ? 'harmonic' : (isScale ? 'arpeggio' : DOM.playback.value);
+            const dir = DOM.direction ? DOM.direction.value : 'up';
+            if (dir === 'down') {
+                notesData.reverse();
+            } else if (dir === 'random') {
+                for (let i = notesData.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [notesData[i], notesData[j]] = [notesData[j], notesData[i]];
+                }
+            }
+
+            const freqs = notesData.map(d => 440 * Math.pow(2, (d.midi - 69) / 12));
             
-            // Base delay for arpeggio steps
-            const delay = 350; 
+            const isScale = (item.cat.startsWith('scale') && !isResolution);
+            const playStyle = isScale ? 'arpeggio' : DOM.playback.value;
+            const delay = 320; 
             
-            // Передаем isScale && !isResolution, чтобы не применять логику гамм к разрешениям
-            playFrequencies(freqs, delay, playStyle, isScale && !isResolution);
+            let speedMultiplier = 1.0;
+            if (isResolution) {
+                speedMultiplier = 0.45; // Очень быстрые характерные
+            } else if (item.res) {
+                speedMultiplier = 0.5; // Быстрые характерные
+            }
+            
+            playFrequencies(freqs, delay, playStyle, isScale, onComplete, speedMultiplier, notesData);
+        }
+
+        function playFullSequence() {
+            if (!currentItemKey) return;
+            const item = ALL_ITEMS[currentItemKey];
+            
+            if (item && item.res) {
+                playCurrentItem(false, () => {
+                    if (currentItemKey === item.key) {
+                        setTimeout(() => playCurrentItem(true), 50); // Минимальная пауза перед разрешением
+                    }
+                });
+            } else {
+                playCurrentItem(false);
+            }
         }
 
         function nextItem() {
@@ -565,7 +626,7 @@
             
             const rootOpt = DOM.root.value;
             if (rootOpt === 'random') {
-                currentBaseNote = 60 + Math.floor(Math.random() * 12); // C4 to B4
+                currentBaseNote = 60 + Math.floor(Math.random() * 12);
                 currentBaseName = NOTE_NAMES[currentBaseNote % 12];
             } else {
                 const baseOffsets = {'C':0, 'C#':1, 'D':2, 'D#':3, 'E':4, 'F':5, 'F#':6, 'G':7, 'G#':8, 'A':9, 'A#':10, 'B':11};
@@ -584,23 +645,13 @@
                 });
             }
 
-            setStatus('🎵 Прослушайте и выберите ответ', 'normal');
-            playCurrentItem();
-        }
-
-        function getFullDesc(key) {
-            const item = ALL_ITEMS[key];
-            let desc = `${currentBaseName} ${item.name}`;
-            if (item.hint) desc += ` <span class="text-xs opacity-70">(${item.hint})</span>`;
-            if (item.resText) desc += `<br><span class="text-[11px] font-normal text-emerald-200 opacity-90 mt-1 block tracking-wide">Разрешение ${item.resText}</span>`;
-            return desc;
+            playFullSequence();
         }
 
         function handleAnswer(key, btn) {
             if (!currentItemKey) return;
             
             document.querySelectorAll('.ans-btn').forEach(b => b.disabled = true);
-            
             const isCorrect = (key === currentItemKey);
             
             if (!stats[currentItemKey]) stats[currentItemKey] = { correct: 0, total: 0 };
@@ -608,36 +659,29 @@
             if (isCorrect) stats[currentItemKey].correct++;
             saveData();
             
+            const item = ALL_ITEMS[currentItemKey];
+            const correctName = `${item.name} (${item.short})`;
+
             if (isCorrect) {
                 btn.classList.add('correct');
-                const item = ALL_ITEMS[currentItemKey];
-                
-                if (item.res) {
-                    setStatus(`✅ Верно! Разрешается ${item.resText}`, 'success');
-                    setTimeout(() => playCurrentItem(true), 1200);
-                    setTimeout(nextItem, 3800);
-                } else {
-                    setStatus('✅ Верно!', 'success');
-                    setTimeout(nextItem, 1000);
+                setStatus(`✅ Верно! Правильно: ${correctName}`, 'success');
+                if (!item.res) {
+                    setTimeout(nextItem, 1200);
                 }
             } else {
                 btn.classList.add('wrong');
                 const correctBtn = document.querySelector(`button[data-key="${currentItemKey}"]`);
                 if(correctBtn) correctBtn.classList.add('correct');
-                setStatus('❌ Ошибка. Правильный ответ показан.', 'error');
+                setStatus(`❌ Ошибка. Правильный ответ: ${correctName}`, 'error');
             }
         }
 
         function showVerbalAnswer() {
             if (!currentItemKey || !DOM.verbalDisplay) return;
-            DOM.verbalDisplay.innerHTML = getFullDesc(currentItemKey);
+            const item = ALL_ITEMS[currentItemKey];
+            DOM.verbalDisplay.innerHTML = `${currentBaseName}: ${item.name} <span class="text-xs text-indigo-300 font-normal">(${item.short})</span>`;
             DOM.verbalDisplay.className = 'w-full max-w-md h-24 bg-emerald-950/40 border border-emerald-800/50 rounded-2xl flex flex-col items-center justify-center shadow-inner text-emerald-300 font-bold text-[15px] sm:text-base px-3 text-center transition-all leading-snug';
             DOM.btnShowAnswer.classList.add('hidden');
-            
-            const item = ALL_ITEMS[currentItemKey];
-            if (item.res) {
-                setTimeout(() => playCurrentItem(true), 400);
-            }
             
             if (!stats[currentItemKey]) stats[currentItemKey] = { correct: 0, total: 0 };
             stats[currentItemKey].total++;
@@ -729,14 +773,14 @@
                 </div>
             </div>`;
 
-            // ROW 2: Chords
-            const triadsMaj = ['triad_maj', 'triad_maj6', 'triad_maj64'].map(k => ALL_ITEMS[k]);
-            const triadsMin = ['triad_min', 'triad_min6', 'triad_min64'].map(k => ALL_ITEMS[k]);
-            const triadsOther = ['triad_aug', 'triad_dim'].map(k => ALL_ITEMS[k]);
+            // ROW 2: Chords (3 columns: Maj, Min, Other)
+            const triadsMaj = CATS.triad.filter(i => i.triadGroup === 'maj');
+            const triadsMin = CATS.triad.filter(i => i.triadGroup === 'min');
+            const triadsOther = CATS.triad.filter(i => i.triadGroup === 'other');
 
             html += `
             <div class="bg-slate-800/30 p-2 rounded-xl border border-slate-700/50 flex flex-col md:flex-row gap-2">
-                <div class="flex-[1.5]">
+                <div class="flex-[1.6]">
                     ${createHeader('triad', 'Трезвучия')}
                     <div class="grid grid-cols-3 gap-1.5">
                         <div class="flex flex-col gap-1">${triadsMaj.map(renderCb).join('')}</div>
@@ -756,10 +800,10 @@
                 </div>
             </div>`;
 
-            // ROW 3: Scales
-            const scalesMaj = ['sc_maj', 'sc_hmaj', 'sc_mmaj'].map(k => ALL_ITEMS[k]);
-            const scalesMin = ['sc_min', 'sc_hmin', 'sc_mmin'].map(k => ALL_ITEMS[k]);
-            const scalesOther = ['sc_2hmaj', 'sc_2hmin'].map(k => ALL_ITEMS[k]);
+            // ROW 3: Scales (3 columns for basic) and Modes
+            const scalesMaj = CATS.scale_basic.filter(i => i.scaleGroup === 'maj');
+            const scalesMin = CATS.scale_basic.filter(i => i.scaleGroup === 'min');
+            const scalesOther = CATS.scale_basic.filter(i => i.scaleGroup === 'other');
 
             html += `
             <div class="bg-slate-800/30 p-2 rounded-xl border border-slate-700/50 flex flex-col xl:flex-row gap-2">
@@ -806,19 +850,6 @@
                     ${i.hint ? `<span class="text-[9px] text-indigo-300/90 mt-0.5 font-bold tracking-wider">${i.hint}</span>` : ''}
                 </button>`;
 
-            const addSection = (title, itemsArr) => {
-                const activeItems = itemsArr.filter(i => activeKeys.includes(i.key));
-                if (activeItems.length === 0) return;
-                
-                html += `
-                <div class="mb-2">
-                    <h4 class="text-[10px] text-slate-400 uppercase mb-1.5 pl-1 tracking-widest font-bold border-b border-slate-700/40 pb-1">${title}</h4>
-                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5">
-                        ${activeItems.map(renderBtn).join('')}
-                    </div>
-                </div>`;
-            };
-
             const addStructuredSection = (title, colsArray) => {
                 const hasActive = colsArray.some(col => col.some(k => activeKeys.includes(k)));
                 if (!hasActive) return;
@@ -836,13 +867,24 @@
                 </div>`;
             };
 
-            // Two-column unified intervals view for main screen
+            const addSection = (title, itemsArr) => {
+                const activeItems = itemsArr.filter(i => activeKeys.includes(i.key));
+                if (activeItems.length === 0) return;
+                
+                html += `
+                <div class="mb-2">
+                    <h4 class="text-[10px] text-slate-400 uppercase mb-1.5 pl-1 tracking-widest font-bold border-b border-slate-700/40 pb-1">${title}</h4>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5">
+                        ${activeItems.map(renderBtn).join('')}
+                    </div>
+                </div>`;
+            };
+
             const activeSimple = CATS.simple.filter(i => activeKeys.includes(i.key));
             const activeChar = CATS.char.filter(i => activeKeys.includes(i.key));
             
             if (activeSimple.length > 0 || activeChar.length > 0) {
                 html += `<div class="flex flex-col md:flex-row gap-2 md:gap-4 mb-2">`;
-                
                 if (activeSimple.length > 0) {
                     html += `<div class="flex-1">
                         <h4 class="text-[10px] text-slate-400 uppercase mb-1.5 pl-1 tracking-widest font-bold border-b border-slate-700/40 pb-1">Простые интервалы</h4>
@@ -851,7 +893,6 @@
                         </div>
                     </div>`;
                 }
-
                 if (activeChar.length > 0) {
                     html += `<div class="flex-1">
                         <h4 class="text-[10px] text-slate-400 uppercase mb-1.5 pl-1 tracking-widest font-bold border-b border-slate-700/40 pb-1">Характерные интервалы</h4>
@@ -860,29 +901,25 @@
                         </div>
                     </div>`;
                 }
-                
                 html += `</div>`;
             }
 
-            addStructuredSection('Трезвучия', [
-                ['triad_maj', 'triad_maj6', 'triad_maj64'],
-                ['triad_min', 'triad_min6', 'triad_min64'],
-                ['triad_aug', 'triad_dim']
-            ]);
+            const triadsMajKeys = CATS.triad.filter(i => i.triadGroup === 'maj').map(i => i.key);
+            const triadsMinKeys = CATS.triad.filter(i => i.triadGroup === 'min').map(i => i.key);
+            const triadsOtherKeys = CATS.triad.filter(i => i.triadGroup === 'other').map(i => i.key);
 
+            addStructuredSection('Трезвучия', [triadsMajKeys, triadsMinKeys, triadsOtherKeys]);
             addSection('Септаккорды', CATS.seventh);
             addSection('Обращения D7', CATS.d7inv);
             
-            addStructuredSection('Базовые Гаммы', [
-                ['sc_maj', 'sc_hmaj', 'sc_mmaj'],
-                ['sc_min', 'sc_hmin', 'sc_mmin'],
-                ['sc_2hmaj', 'sc_2hmin']
-            ]);
-            
+            const scalesMajKeys = CATS.scale_basic.filter(i => i.scaleGroup === 'maj').map(i => i.key);
+            const scalesMinKeys = CATS.scale_basic.filter(i => i.scaleGroup === 'min').map(i => i.key);
+            const scalesOtherKeys = CATS.scale_basic.filter(i => i.scaleGroup === 'other').map(i => i.key);
+
+            addStructuredSection('Базовые Гаммы', [scalesMajKeys, scalesMinKeys, scalesOtherKeys]);
             addSection('Народные Лады и Пентатоника', CATS.scale_modes);
 
             if (!html) html = '<div class="text-center text-slate-500 text-sm font-medium py-10">В настройках (⚙️) ничего не выбрано.</div>';
-            
             if(DOM.answersWrap) DOM.answersWrap.innerHTML = html;
         }
 
@@ -951,24 +988,27 @@
             const data = {
                 activeKeys,
                 stats,
-                tempo: DOM.tempo ? DOM.tempo.value : 'normal',
+                tempo: DOM.tempo ? DOM.tempo.value : 'slow',
                 playback: DOM.playback ? DOM.playback.value : 'arpeggio',
+                direction: DOM.direction ? DOM.direction.value : 'up',
                 timbre: DOM.timbre ? DOM.timbre.value : 'piano',
                 root: DOM.root ? DOM.root.value : 'random',
+                volume: DOM.volumeSlider ? parseFloat(DOM.volumeSlider.value) : 0.5,
                 verbal: DOM.verbalCb ? DOM.verbalCb.checked : false
             };
-            await setSavedData('trainerState_v5', data);
+            await setSavedData('trainerState_v6', data);
         }
 
         async function loadData() {
-            const data = await getSavedData('trainerState_v5');
+            const data = await getSavedData('trainerState_v6');
             if (data) {
                 if (data.activeKeys && data.activeKeys.length > 0) activeKeys = data.activeKeys;
                 if (data.stats) stats = data.stats;
                 if (data.tempo && DOM.tempo) DOM.tempo.value = data.tempo;
                 if (data.playback && DOM.playback) DOM.playback.value = data.playback;
+                if (data.direction && DOM.direction) DOM.direction.value = data.direction;
                 if (data.timbre && DOM.timbre) DOM.timbre.value = data.timbre;
-                if (data.root && DOM.root) DOM.root.value = data.root;
+                if (typeof data.volume !== 'undefined' && DOM.volumeSlider) DOM.volumeSlider.value = data.volume;
                 if (typeof data.verbal !== 'undefined' && DOM.verbalCb) DOM.verbalCb.checked = data.verbal;
             }
         }
@@ -985,8 +1025,8 @@
             
             if(DOM.btnNew) DOM.btnNew.onclick = nextItem;
             if(DOM.btnVerbalNew) DOM.btnVerbalNew.onclick = nextItem;
-            if(DOM.btnRepeat) DOM.btnRepeat.onclick = () => playCurrentItem();
-            if(DOM.btnVerbalRepeat) DOM.btnVerbalRepeat.onclick = () => playCurrentItem();
+            if(DOM.btnRepeat) DOM.btnRepeat.onclick = () => playFullSequence();
+            if(DOM.btnVerbalRepeat) DOM.btnVerbalRepeat.onclick = () => playFullSequence();
             if(DOM.btnShowAnswer) DOM.btnShowAnswer.onclick = showVerbalAnswer;
             
             if(DOM.btnSettings) DOM.btnSettings.onclick = () => {
@@ -1012,7 +1052,6 @@
                 };
             }
 
-            // Закрытие модальных окон при клике по фону
             if(DOM.settingsModal) DOM.settingsModal.onclick = (e) => {
                 if(e.target === DOM.settingsModal) DOM.btnCloseSettings.click();
             };
@@ -1033,8 +1072,10 @@
             if(DOM.verbalCb) DOM.verbalCb.onchange = toggleVerbalMode;
             if(DOM.tempo) DOM.tempo.onchange = saveData;
             if(DOM.playback) DOM.playback.onchange = saveData;
+            if(DOM.direction) DOM.direction.onchange = saveData;
             if(DOM.timbre) DOM.timbre.onchange = saveData;
             if(DOM.root) DOM.root.onchange = saveData;
+            if(DOM.volumeSlider) DOM.volumeSlider.oninput = saveData;
 
             ['touchstart', 'touchend', 'click'].forEach(evt => {
                 document.body.addEventListener(evt, unlockAudio, { once: true });
